@@ -1,0 +1,14 @@
+﻿App Installer	Microsoft Corporation	
+Brave	Brave Software Inc	
+Calculator	Microsoft Corporation	
+Media Player	Microsoft Corporation		
+Microsoft Store	Microsoft Corporation	
+Movies & TV	Microsoft Corporation	
+Notepad	Microsoft Corporation	
+Paint	Microsoft Corporation	
+Photos	Microsoft Corporation	
+Snipping Tool	Microsoft Corporation		
+Store Experience Host	Microsoft Corporation	
+Windows Security	Microsoft Corporation		
+Windows Web Experience Pack	Microsoft Windows
+Windows Media Player Microsoft Corporation
