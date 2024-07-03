@@ -2,7 +2,8 @@
   <img src="Banner.png" width="800">
 </p>
 
-By default, almost everything should be removed. Available programs are shown in the file Aviable_Programs_Windows_X. Any changes made to the image are described in autounattend.xml. If for any reason Edge is still present (thanks Microsoft), download the [Remove-Edge.exe](https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-Edge.exe?raw=true) file and execute it.
+# Overview
+By default, almost everything should be removed. Available programs are shown in the file Available_Programs_Windows_X. Any changes made to the image are described in autounattend.xml. If, for any reason, Edge is still present (thanks Microsoft), download the [Remove-Edge.exe](https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-Edge.exe?raw=true) file and execute it.
 
 # What's Needed:
 * Brain
