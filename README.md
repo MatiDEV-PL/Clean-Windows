@@ -1,4 +1,4 @@
-By defult almost everything should be removed avaible programs are shown on below screenshots. If for any reason Edge is still present(thanks Microsoft) download Remove_Edge.bat file and execute it.
+By defult almost everything should be removed avaible programs are shown on below screenshots. If for any reason Edge is still present(thanks Microsoft) download [Remove-Edge.exe](https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-Edge.exe?raw=true) file and execute it.
 
 Screenshots:
 
