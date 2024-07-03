@@ -6,3 +6,4 @@ Screenshots:
 
 
 Based on [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall)
+Also used [Remove-MS-Edge](https://github.com/ShadowWhisperer/Remove-MS-Edge?tab=readme-ov-file)
