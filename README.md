@@ -1,4 +1,4 @@
-By defult almost everything should be removed avaible programs are shown in . If for any reason Edge is still present(thanks Microsoft) download [Remove-Edge.exe](https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-Edge.exe?raw=true) file and execute it.
+By default, almost everything should be removed. Available programs are shown in the file Aviable_Programs_Windows_X. Any changes made to the image are described in autounattend.xml. If for any reason Edge is still present (thanks Microsoft), download the [Remove-Edge.exe](https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-Edge.exe?raw=true) file and execute it.
 
 # What's Needed:
 * Brain
@@ -9,7 +9,7 @@ Screenshots:
 
 <img src="https://i.imgur.com/E7hxwMs.png" width="600">
 
-<img src="https://i.imgur.com/E7hxwMs.png" width="600">
+<img src="https://i.imgur.com/hKPZnzd.png" width="600">
 
 
 Based on [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall)
