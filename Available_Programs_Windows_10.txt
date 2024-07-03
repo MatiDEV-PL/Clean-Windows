@@ -1,0 +1,18 @@
+﻿App Installer	Microsoft Corporation		
+Brave	Brave Software Inc	
+Calculator	Microsoft Corporation		
+Groove Music	Microsoft Corporation		
+HEIF Image Extensions	Microsoft Corporation		
+Microsoft Pay	Microsoft Corporation		
+Microsoft Store	Microsoft Corporation		
+Movies & TV	Microsoft Corporation		
+Photos	Microsoft Corporation		
+Snip & Sketch	Microsoft Corporation	
+Windows Paint	Microsoft Corporation	
+Store Experience Host	Microsoft Corporation			
+VP9 Video Extensions	Microsoft Corporation				
+Web Media Extensions	Microsoft Corporation			
+Webp Image Extensions	Microsoft Corporation
+Windows Print	Microsoft Corporation		
+Windows Media Player	Microsoft Corporation
+Notepad	Microsoft Corporation
