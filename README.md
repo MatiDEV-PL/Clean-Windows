@@ -7,8 +7,9 @@ By defult almost everything should be removed avaible programs are shown in . If
 
 Screenshots:
 
-![Imgur](https://i.imgur.com/E7hxwMs.png)
+<img src="https://i.imgur.com/E7hxwMs.png" width="600">
 
+<img src="https://i.imgur.com/E7hxwMs.png" width="600">
 
 
 Based on [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall)
