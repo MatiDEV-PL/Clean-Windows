@@ -1,5 +1,4 @@
 ﻿App Installer	Microsoft Corporation	
-Brave	Brave Software Inc	
 Calculator	Microsoft Corporation	
 Media Player	Microsoft Corporation		
 Microsoft Store	Microsoft Corporation	
