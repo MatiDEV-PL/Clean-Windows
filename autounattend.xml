@@ -96,16 +96,6 @@
 					<Description>Executes the EdgeRemoval batch file</Description>
 					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\edgeremoval.bat &gt;&gt;"C:\Windows\Setup\Scripts\edgeremoval.log" 2&gt;&amp;1"</Path>
 				</RunSynchronousCommand>
-      	<RunSynchronousCommand wcm:action="add">
-					<Order>11</Order>
-					<Description>Download Brave Browser Installer</Description>
-					<Path>powershell.exe -NoProfile -Command "Invoke-WebRequest -Uri 'https://laptop-updates.brave.com/latest/winx64' -OutFile '%TEMP%\BraveBrowserSetup.exe'"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>12</Order>
-					<Description>Install Brave Browser</Description>
-					<Path>cmd.exe /c "%TEMP%\BraveBrowserSetup.exe /silent /install"</Path>
-				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
     			<Order>13</Order>
     			<Description>Delete WFS.exe from System32</Description>
@@ -177,11 +167,16 @@
 				<HideEULAPage>true</HideEULAPage>
 				<HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
 				<HideOnlineAccountScreens>true</HideOnlineAccountScreens>
-				<HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
 				<NetworkLocation>Work</NetworkLocation>
 				<ProtectYourPC>3</ProtectYourPC>
 			</OOBE>
-			<FirstLogonCommands></FirstLogonCommands>
+			<FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
+          <Description>Create Browser_Downloader.bat on Desktop</Description>
+        </SynchronousCommand>
+      </FirstLogonCommands>
 		</component>
 	</settings>
   <Extensions>
@@ -1035,17 +1030,6 @@ reg.exe add "HKU\DefaultUser\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Pe
 reg.exe add "HKU\DefaultUser\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 1 /f
 reg.exe add "HKU\DefaultUser\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
 
-:: Set Brave as the default browser
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\ftp\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\mailto\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\news\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\snews\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.htm\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-
 :: Disables Windows Recall on Copilot+ PC - Credit Britec09
 reg.exe add "HKU\DefaultUser\Software\Policies\Microsoft\Windows\WindowsAI" /f
 reg.exe add "HKU\DefaultUser\Software\Policies\Microsoft\Windows\WindowsAI" /v "DisableAIDataAnalysis" /t REG_DWORD /d 1 /f
@@ -1209,17 +1193,6 @@ fsutil.exe behavior set disableLastAccess 1
 
 :: Hides the Language Switcher on the Taskbar
 reg.exe add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\CTF\LangBar" /v ShowStatus /t REG_DWORD /d 3 /f
-
-:: Set Brave as the default browser
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\ftp\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\mailto\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\news\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\snews\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.htm\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
-reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice" /v ProgId /t REG_SZ /d "BraveHTML" /f
 
 :: Disables Windows Recall on Copilot+ PC - Credit Britec09
 reg.exe add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\WindowsAI" /f
@@ -1469,5 +1442,138 @@ start powershell -args "-nop -noe -c & {iex(($code)[0].Edge_Removal)}" -verb run
 $_Press_Enter
 #::]]>
 	</File>
+  <!--Browser Downloader-->
+  <File path="C:\Windows\Setup\Scripts\Browser_Downloader.bat">
+            <![CDATA[
+@echo off
+title Browser Downloader and Installer
+
+:: Check for administrative privileges
+powershell -Command "if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) { exit 1 }"
+if '%errorlevel%' NEQ '0' (
+    echo Requesting administrative privileges...
+    goto UACPrompt
+) else ( goto gotAdmin )
+
+:UACPrompt
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+    echo UAC.ShellExecute "cmd.exe", "/c ""%~s0""", "", "runas", 1 >> "%temp%\getadmin.vbs"
+    "%temp%\getadmin.vbs"
+    del "%temp%\getadmin.vbs"
+    exit /B
+
+:gotAdmin
+    pushd "%CD%"
+    CD /D "%~dp0"
+
+set "downloadDir=%USERPROFILE%\Downloads"
+
+:: Check if the system is 64-bit or 32-bit
+if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+    set "arch=64"
+) else (
+    set "arch=32"
+)
+
+:menu
+echo.
+echo Select a browser to download and install:
+echo [1]  Microsoft Edge
+echo [2]  Brave
+echo [3]  Firefox
+echo [4]  Google Chrome
+echo [5]  Opera
+echo [6]  DuckDuckGo 
+echo [7]  Librewolf
+echo [8]  Exit
+echo.
+set /p choice=Enter your choice (1-8): 
+
+if "%choice%"=="1" goto edge
+if "%choice%"=="2" goto brave
+if "%choice%"=="3" goto firefox
+if "%choice%"=="4" goto chrome
+if "%choice%"=="5" goto opera
+if "%choice%"=="6" goto duckduckgo
+if "%choice%"=="7" goto librewolf
+if "%choice%"=="8" goto exit
+
+:edge
+call :download "Microsoft Edge" "MicrosoftEdgeSetup.exe" "https://go.microsoft.com/fwlink/?linkid=2109047&Channel=Stable&language=en&consent=1" "/silent /install"
+goto end
+
+:brave
+if "%arch%"=="64" (
+    set "url=https://github.com/brave/brave-browser/releases/download/v0.62.51/BraveBrowserSetup.exe"
+    set "fileName=BraveBrowserSetup64.exe"
+) else (
+    set "url=https://github.com/brave/brave-browser/releases/download/v0.62.51/BraveBrowserSetup32.exe"
+    set "fileName=BraveBrowserSetup32.exe"
+)
+call :download "Brave" "%fileName%" "%url%" "/silent /install"
+goto end
+
+:firefox
+call :download "Firefox" "FirefoxSetup.exe" "https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US&arch=%arch%" "/silent /install"
+goto end
+
+:chrome
+if "%arch%"=="64" (
+    set "url=https://dl.google.com/chrome/install/googlechromestandaloneenterprise64.msi"
+    set "fileName=GoogleChromeStandaloneEnterprise64.msi"
+) else (
+    set "url=https://dl.google.com/chrome/install/googlechromestandaloneenterprise.msi"
+    set "fileName=GoogleChromeStandaloneEnterprise.msi"
+)
+call :download "Google Chrome" "%fileName%" "%url%" "/quiet"
+goto end
+
+:opera
+if "%arch%"=="64" (
+    set "url=https://download3.operacdn.com/pub/opera/desktop/76.0.4017.177/win/Opera_76.0.4017.177_Setup_x64.exe"
+    set "fileName=OperaSetup_x64.exe"
+) else (
+    set "url=https://download3.operacdn.com/pub/opera/desktop/76.0.4017.177/win/Opera_76.0.4017.177_Setup.exe"
+    set "fileName=OperaSetup.exe"
+)
+call :download "Opera" "%fileName%" "%url%" "/silent /install"
+goto end
+
+:duckduckgo
+set "browserName=DuckDuckGo"
+set "fileName=DuckDuckGo.msixbundle"
+set "url=https://staticcdn.duckduckgo.com/windows-desktop-browser/help-pages/DuckDuckGo.msixbundle"
+
+echo Downloading %browserName%...
+curl -L -o "%downloadDir%\%fileName%" "%url%"
+echo Installing %browserName%...
+powershell -Command "Add-AppxPackage -Path '%downloadDir%\%fileName%'"
+echo %browserName% has been installed.
+goto menu
+
+:librewolf
+call :download "Librewolf" "LibrewolfSetup.exe" "https://gitlab.com/api/v4/projects/44042130/packages/generic/librewolf/127.0.2-2/librewolf-127.0.2-2-windows-x86_64-setup.exe" "/S"
+goto end
+
+:exit
+exit /B
+
+:download
+set "browserName=%~1"
+set "fileName=%~2"
+set "url=%~3"
+set "silentArgs=%~4"
+
+echo Downloading %browserName%...
+curl -L -o "%downloadDir%\%fileName%" "%url%"
+echo Installing %browserName%...
+start /wait "" "%downloadDir%\%fileName%" %silentArgs%
+echo %browserName% has been installed.
+goto menu
+
+:end
+echo Done.
+pause]]>
+  </File>
   </Extensions>
 </unattend>
