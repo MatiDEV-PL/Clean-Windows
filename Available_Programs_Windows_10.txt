@@ -1,5 +1,4 @@
 ﻿App Installer	Microsoft Corporation		
-Brave	Brave Software Inc	
 Calculator	Microsoft Corporation		
 Groove Music	Microsoft Corporation		
 HEIF Image Extensions	Microsoft Corporation		
