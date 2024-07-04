@@ -7,7 +7,7 @@ By default, almost everything should be removed. Available programs are shown in
 
 # What's Needed:
 * Brain
-* [Windows 10](https://www.microsoft.com/software-download/windows10) or [Windows 11](https://www.microsoft.com/pl-pl/software-download/windows11) ISO
+* [Windows 10](https://www.microsoft.com/software-download/windows10) or [Windows 11](https://www.microsoft.com/software-download/windows11) ISO
 * Software like [AnyBurn](https://www.anyburn.com/download.php) to add autounattend.xml to ISO
 
 # Screenshots:
