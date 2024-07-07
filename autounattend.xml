@@ -1504,10 +1504,10 @@ goto end
 
 :brave
 if "%arch%"=="64" (
-    set "url=https://github.com/brave/brave-browser/releases/download/v0.62.51/BraveBrowserSetup.exe"
+    set "url=https://github.com/brave/brave-browser/releases/download/v1.67.123/BraveBrowserStandaloneSetup.exe"
     set "fileName=BraveBrowserSetup64.exe"
 ) else (
-    set "url=https://github.com/brave/brave-browser/releases/download/v0.62.51/BraveBrowserSetup32.exe"
+    set "url=https://github.com/brave/brave-browser/releases/download/v1.67.123/BraveBrowserStandaloneSetup32.exe"
     set "fileName=BraveBrowserSetup32.exe"
 )
 call :download "Brave" "%fileName%" "%url%" "/silent /install"
