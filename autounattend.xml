@@ -97,62 +97,62 @@
 					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\edgeremoval.bat &gt;&gt;"C:\Windows\Setup\Scripts\edgeremoval.log" 2&gt;&amp;1"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>13</Order>
+    			<Order>11</Order>
     			<Description>Delete WFS.exe from System32</Description>
     			<Path>cmd.exe /c del "C:\Windows\System32\WFS.exe"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>14</Order>
+    			<Order>12</Order>
     			<Description>Delete SnippingTool.exe from System32</Description>
     			<Path>cmd.exe /c del "C:\Windows\System32\SnippingTool.exe"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>15</Order>
+    			<Order>13</Order>
     			<Description>Delete mstsc.exe from System32</Description>
     			<Path>cmd.exe /c del "C:\Windows\System32\mstsc.exe"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>16</Order>
+    			<Order>14</Order>
     			<Description>Delete wordpad.exe</Description>
     			<Path>cmd.exe /c rmdir /s /q "C:\Program Files\Windows NT\Accessories"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>17</Order>
+    			<Order>15</Order>
     			<Description>Delete Windows Fax and Scan shortcut</Description>
     			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Windows Fax and Scan.lnk"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>18</Order>
+    			<Order>16</Order>
     			<Description>Delete Remote Desktop Connection shortcut</Description>
     			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Remote Desktop Connection.lnk"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>19</Order>
+    			<Order>17</Order>
     			<Description>Delete Snipping Tool shortcut</Description>
     			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Snipping Tool.lnk"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>20</Order>
+    			<Order>18</Order>
     			<Description>Delete Wordpad shortcut</Description>
     			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Wordpad.lnk"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-    			<Order>21</Order>
+    			<Order>19</Order>
     			<Description>Delete charmap.exe shortcut</Description>
     			<Path>cmd.exe /c rmdir /s /q "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools"</Path>
 				</RunSynchronousCommand>
         <RunSynchronousCommand wcm:action="add">
-					<Order>22</Order>
+					<Order>20</Order>
 					<Description>Download Remove-NoTerm.exe</Description>
 					<Path>powershell.exe -NoProfile -Command "Invoke-WebRequest -Uri 'https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-NoTerm.exe?raw=true' -OutFile '%TEMP%\Remove-NoTerm.exe'"</Path>
 				</RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-					<Order>23</Order>
+					<Order>21</Order>
 					<Description>Install Remove-NoTerm</Description>
 					<Path>cmd.exe /c "%TEMP%\Remove-NoTerm.exe /silent /install"</Path>
         </RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
-					<Order>24</Order>
+					<Order>22</Order>
 					<Description>Unloads the Default User Registry Hive</Description>
 					<Path>reg.exe unload "HKU\DefaultUser"</Path>
 				</RunSynchronousCommand>
