@@ -1443,7 +1443,7 @@ $_Press_Enter
 #::]]>
 	</File>
   <!--Browser Downloader-->
-  <File path="C:\Windows\Setup\Scripts\Browser_Downloader.bat">
+  <File path="C:\Windows\Setup\Scripts\Open-ToolBox.bat">
             <![CDATA[
 @echo off
 title Open ToolBox
