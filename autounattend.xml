@@ -1498,14 +1498,19 @@ if "%choice%"=="6" goto duckduckgo
 if "%choice%"=="7" goto librewolf
 if "%choice%"=="8" exit
 
+cls
 echo Invalid choice. Please select a number between 1 and 8.
+cls
 goto menu
 
+cls
 :edge
 echo Selected Microsoft Edge
 call :download "Microsoft Edge" "MicrosoftEdgeSetup.exe" "https://go.microsoft.com/fwlink/?linkid=2109047&Channel=Stable&language=en&consent=1" "/silent /install"
+cls
 goto end
 
+cls
 :brave
 echo Selected Brave
 if "%arch%"=="64" (
@@ -1516,13 +1521,18 @@ if "%arch%"=="64" (
     set "fileName=BraveBrowserSetup32.exe"
 )
 call :download "Brave" "%fileName%" "%url%" "/silent /install"
+cls
 goto end
 
+
+cls
 :firefox
 echo Selected Firefox
 call :download "Firefox" "FirefoxSetup.exe" "https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US&arch=%arch%" "/silent /install"
+cls
 goto end
 
+cls
 :chrome
 echo Selected Google Chrome
 if "%arch%"=="64" (
@@ -1533,8 +1543,10 @@ if "%arch%"=="64" (
     set "fileName=GoogleChromeStandaloneEnterprise.msi"
 )
 call :download "Google Chrome" "%fileName%" "%url%" "/quiet"
+cls
 goto end
 
+cls
 :opera
 echo Selected Opera
 if "%arch%"=="64" (
@@ -1545,15 +1557,16 @@ if "%arch%"=="64" (
     set "fileName=OperaSetup.exe"
 )
 call :download "Opera" "%fileName%" "%url%" "/silent /install"
+cls
 goto end
 
+cls
 :duckduckgo
 echo Selected DuckDuckGo
 set "browserName=DuckDuckGo"
 set "fileName=DuckDuckGo.msixbundle"
 set "url=https://staticcdn.duckduckgo.com/windows-desktop-browser/help-pages/DuckDuckGo.msixbundle"
 set "frameworkUrl=https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
-
 echo Downloading %browserName%...
 curl -L -o "%downloadDir%\%fileName%" "%url%"
 if %errorlevel% neq 0 (
@@ -1583,17 +1596,21 @@ if %errorlevel% neq 0 (
 )
 
 echo %browserName% has been installed.
+cls
 goto menu
 
+cls
 :librewolf
 echo Selected Librewolf
 call :download "Librewolf" "LibrewolfSetup.exe" "https://gitlab.com/api/v4/projects/44042130/packages/generic/librewolf/127.0.2-2/librewolf-127.0.2-2-windows-x86_64-setup.exe" "/S"
+cls
 goto end
 
 :exit
 exit /B
 
 :download
+cls
 set "browserName=%~1"
 set "fileName=%~2"
 set "url=%~3"
@@ -1640,7 +1657,7 @@ if not "%checkCommand%"=="" (
 ) else (
     echo Could not verify the installation of %browserName%.
 )
-
+cls
 goto menu
 
 :end
