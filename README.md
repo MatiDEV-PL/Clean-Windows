@@ -13,7 +13,7 @@ By default, almost everything should be removed. Available programs are shown in
 
 # Screenshots:
 
-<img src="https://i.imgur.com/CGdn6lN.png" width="600">
+<img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Photo_10.png" width="600">
 <img src="https://i.imgur.com/I1njbd2.png" width="600">
 
 Based on [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall)
