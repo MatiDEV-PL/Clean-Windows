@@ -22,4 +22,6 @@ Also used [Remove-MS-Edge](https://github.com/ShadowWhisperer/Remove-MS-Edge?tab
 
 
 # If you like my work consider giving tip
-[<img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" width="200">]() <img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Donate.png" width="120">
+[<img src="https://liberapay.com/assets/widgets/donate.svg" width="100">](https://liberapay.com/MatiDEV-PL/donate) 
+
+<img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Donate.png" width="120">
