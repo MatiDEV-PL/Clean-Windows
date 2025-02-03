@@ -31,5 +31,4 @@ Also used [Remove-MS-Edge](https://github.com/ShadowWhisperer/Remove-MS-Edge?tab
 
 
 # If you like my work consider giving tip
-<img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Donate.png" width="200">
-0x558243239Edbc454D2eAAd9c5E2966Fd8dE0Baa7
+[<img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" width="200">]() <img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Donate.png" width="120">
