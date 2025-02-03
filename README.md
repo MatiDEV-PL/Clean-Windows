@@ -1,6 +1,15 @@
 <p align="center">
   <img src="Banner.png" width="800">
+</p> 
+
+
+<p align="center">
+  <a href="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"/>
+  </a>
 </p>
+
+
 
 # Overview
 By default, almost everything should be removed. Available programs are shown in the file Available_Programs_Windows_X. Any changes made to the image are described in autounattend.xml. For an in-depth overview of what is Unattend Windows installation, you can check out this official Microsoft page: [Answer files](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/update-windows-settings-and-scripts-create-your-own-answer-file-sxs?view=windows-11). If, for any reason, Edge is still present (thanks Microsoft), download the [Remove-Edge.exe](https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-Edge.exe) file and execute it.
