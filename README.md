@@ -11,6 +11,9 @@ By default, almost everything should be removed. Available programs are shown in
 * Software like [AnyBurn](https://www.anyburn.com/download.php) to add autounattend.xml to ISO
 * Optionally, access to the internet (without it, Edge might appear on the desktop during Windows 10 setup).
 
+# Tutorials:
+[How to add autounattend.xml to windows iso file](https://www.youtube.com/watch?v=OjAhDf0CoyE)
+
 # Screenshots:
 
 <img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Photo_10.png" width="600">
