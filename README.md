@@ -12,7 +12,7 @@ By default, almost everything should be removed. Available programs are shown in
 * Optionally, access to the internet (without it, Edge might appear on the desktop during Windows 10 setup).
 
 # Tutorials:
-[How to add autounattend.xml to windows iso file](https://www.youtube.com/watch?v=OjAhDf0CoyE)
+[How to add autounattend.xml to windows iso file](https://youtu.be/qKIFijGB-Ig)
 
 # Screenshots:
 
