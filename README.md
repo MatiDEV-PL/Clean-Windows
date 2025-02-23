@@ -9,7 +9,7 @@ By default, almost everything should be removed. Available programs are shown in
 * Brain
 * [Windows 10](https://www.microsoft.com/software-download/windows10) or [Windows 11](https://www.microsoft.com/software-download/windows11) ISO (only 64bit)
 * Software like [AnyBurn](https://www.anyburn.com/download.php) to add autounattend.xml to ISO
-* Internet (without it, Edge might appear on the desktop during Windows 10 setup)
+* Optionally, access to the internet (without it, Edge might appear on the desktop during Windows 10 setup).
 
 # Screenshots:
 
