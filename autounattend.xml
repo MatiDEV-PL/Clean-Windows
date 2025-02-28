@@ -1453,7 +1453,9 @@ powershell -Command "if (-not ([Security.Principal.WindowsPrincipal] [Security.P
 if '%errorlevel%' NEQ '0' (
     echo Requesting administrative privileges...
     goto UACPrompt
-) else ( goto gotAdmin )
+) else ( 
+    goto gotAdmin 
+)
 
 :UACPrompt
     echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
@@ -1469,13 +1471,11 @@ if '%errorlevel%' NEQ '0' (
 set "downloadDir=%USERPROFILE%\Downloads"
 
 :: Check if the system is 64-bit or 32-bit
-if "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
-    set "arch=64"
-) else (
-    set "arch=32"
-)
+set "arch=32"
+if "%PROCESSOR_ARCHITECTURE%"=="AMD64" set "arch=64"
 
 :menu
+cls
 echo.
 echo Select a browser to download and install:
 echo [1]  Microsoft Edge
@@ -1485,7 +1485,7 @@ echo [4]  Google Chrome
 echo [5]  Opera
 echo [6]  DuckDuckGo 
 echo [7]  Librewolf
-echo [8]  Exit
+echo [31m[8]  Exit[0m
 echo.
 set /p choice=Enter your choice (1-8): 
 
@@ -1500,41 +1500,36 @@ if "%choice%"=="8" exit
 
 cls
 echo Invalid choice. Please select a number between 1 and 8.
-cls
 goto menu
 
-cls
 :edge
-echo Selected Microsoft Edge
-call :download "Microsoft Edge" "MicrosoftEdgeSetup.exe" "https://go.microsoft.com/fwlink/?linkid=2109047&Channel=Stable&language=en&consent=1" "/silent /install"
-cls
-goto end
+set "browserName=Microsoft Edge"
+set "fileName=MicrosoftEdgeSetup.exe"
+set "url=https://go.microsoft.com/fwlink/?linkid=2109047&Channel=Stable&language=en&consent=1"
+set "silentArgs=/silent /install"
+goto download
 
-cls
 :brave
-echo Selected Brave
+set "browserName=Brave"
 if "%arch%"=="64" (
-    set "url=https://github.com/brave/brave-browser/releases/download/v1.67.123/BraveBrowserStandaloneSetup.exe"
+    set "url=https://github.com/brave/brave-browser/releases/download/v1.75.181/BraveBrowserStandaloneSetup.exe"
     set "fileName=BraveBrowserSetup64.exe"
 ) else (
-    set "url=https://github.com/brave/brave-browser/releases/download/v1.67.123/BraveBrowserStandaloneSetup32.exe"
+    set "url=https://github.com/brave/brave-browser/releases/download/v1.75.181/BraveBrowserStandaloneSetup32.exe"
     set "fileName=BraveBrowserSetup32.exe"
 )
-call :download "Brave" "%fileName%" "%url%" "/silent /install"
-cls
-goto end
+set "silentArgs=/silent /install"
+goto download
 
-
-cls
 :firefox
-echo Selected Firefox
-call :download "Firefox" "FirefoxSetup.exe" "https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US&arch=%arch%" "/silent /install"
-cls
-goto end
+set "browserName=Firefox"
+set "fileName=FirefoxSetup.exe"
+set "url=https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US&arch=%arch%"
+set "silentArgs=/silent /install"
+goto download
 
-cls
 :chrome
-echo Selected Google Chrome
+set "browserName=Google Chrome"
 if "%arch%"=="64" (
     set "url=https://dl.google.com/chrome/install/googlechromestandaloneenterprise64.msi"
     set "fileName=GoogleChromeStandaloneEnterprise64.msi"
@@ -1542,13 +1537,11 @@ if "%arch%"=="64" (
     set "url=https://dl.google.com/chrome/install/googlechromestandaloneenterprise.msi"
     set "fileName=GoogleChromeStandaloneEnterprise.msi"
 )
-call :download "Google Chrome" "%fileName%" "%url%" "/quiet"
-cls
-goto end
+set "silentArgs=/quiet"
+goto download
 
-cls
 :opera
-echo Selected Opera
+set "browserName=Opera"
 if "%arch%"=="64" (
     set "url=https://download3.operacdn.com/pub/opera/desktop/76.0.4017.177/win/Opera_76.0.4017.177_Setup_x64.exe"
     set "fileName=OperaSetup_x64.exe"
@@ -1556,72 +1549,62 @@ if "%arch%"=="64" (
     set "url=https://download3.operacdn.com/pub/opera/desktop/76.0.4017.177/win/Opera_76.0.4017.177_Setup.exe"
     set "fileName=OperaSetup.exe"
 )
-call :download "Opera" "%fileName%" "%url%" "/silent /install"
-cls
-goto end
+set "silentArgs=/silent /install"
+goto download
 
-cls
 :duckduckgo
-echo Selected DuckDuckGo
 set "browserName=DuckDuckGo"
 set "fileName=DuckDuckGo.msixbundle"
 set "url=https://staticcdn.duckduckgo.com/windows-desktop-browser/help-pages/DuckDuckGo.msixbundle"
 set "frameworkUrl=https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
+cls
 echo Downloading %browserName%...
 curl -L -o "%downloadDir%\%fileName%" "%url%"
 if %errorlevel% neq 0 (
     echo Error downloading %browserName%. Exiting.
     exit /B 1
 )
-
+cls
 echo Downloading required framework...
 curl -L -o "%downloadDir%\Microsoft.VCLibs.x64.14.00.Desktop.appx" "%frameworkUrl%"
 if %errorlevel% neq 0 (
     echo Error downloading framework. Exiting.
     exit /B 1
 )
-
+cls
 echo Installing required framework...
 powershell -Command "Add-AppxPackage -Path '%downloadDir%\Microsoft.VCLibs.x64.14.00.Desktop.appx'"
 if %errorlevel% neq 0 (
     echo Error installing framework. Exiting.
     exit /B 1
 )
-
+cls
 echo Installing %browserName%...
 powershell -Command "Add-AppxPackage -Path '%downloadDir%\%fileName%'"
 if %errorlevel% neq 0 (
     echo Error installing %browserName%. Exiting.
     exit /B 1
 )
-
-echo %browserName% has been installed.
 cls
+echo %browserName% has been installed.
 goto menu
 
-cls
 :librewolf
-echo Selected Librewolf
-call :download "Librewolf" "LibrewolfSetup.exe" "https://gitlab.com/api/v4/projects/44042130/packages/generic/librewolf/127.0.2-2/librewolf-127.0.2-2-windows-x86_64-setup.exe" "/S"
-cls
-goto end
-
-:exit
-exit /B
+set "browserName=Librewolf"
+set "fileName=LibrewolfSetup.exe"
+set "url=https://gitlab.com/api/v4/projects/44042130/packages/generic/librewolf/135.0.1-1/librewolf-135.0.1-1-windows-x86_64-setup.exe"
+set "silentArgs=/S"
+goto download
 
 :download
 cls
-set "browserName=%~1"
-set "fileName=%~2"
-set "url=%~3"
-set "silentArgs=%~4"
-
 echo Downloading %browserName%...
 curl -L -o "%downloadDir%\%fileName%" "%url%"
 if %errorlevel% neq 0 (
     echo Error downloading %browserName%. Exiting.
     exit /B 1
 )
+cls
 echo Installing %browserName%...
 start /wait "" "%downloadDir%\%fileName%" %silentArgs%
 if %errorlevel% neq 0 (
@@ -1631,21 +1614,13 @@ if %errorlevel% neq 0 (
 
 :: Check if the browser is installed
 set "checkCommand="
-if "%browserName%"=="Microsoft Edge" (
-    set "checkCommand=msedge"
-) else if "%browserName%"=="Brave" (
-    set "checkCommand=brave"
-) else if "%browserName%"=="Firefox" (
-    set "checkCommand=firefox"
-) else if "%browserName%"=="Google Chrome" (
-    set "checkCommand=chrome"
-) else if "%browserName%"=="Opera" (
-    set "checkCommand=opera"
-) else if "%browserName%"=="DuckDuckGo" (
-    set "checkCommand=duckduckgo"
-) else if "%browserName%"=="Librewolf" (
-    set "checkCommand=librewolf"
-)
+if "%browserName%"=="Microsoft Edge" set "checkCommand=msedge"
+if "%browserName%"=="Brave" set "checkCommand=brave"
+if "%browserName%"=="Firefox" set "checkCommand=firefox"
+if "%browserName%"=="Google Chrome" set "checkCommand=chrome"
+if "%browserName%"=="Opera" set "checkCommand=opera"
+if "%browserName%"=="DuckDuckGo" set "checkCommand=duckduckgo"
+if "%browserName%"=="Librewolf" set "checkCommand=librewolf"
 
 if not "%checkCommand%"=="" (
     powershell -Command "Get-Command '%checkCommand%' -ErrorAction SilentlyContinue" >nul 2>&1
@@ -1657,7 +1632,6 @@ if not "%checkCommand%"=="" (
 ) else (
     echo Could not verify the installation of %browserName%.
 )
-cls
 goto menu
 
 :end
