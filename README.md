@@ -23,7 +23,7 @@ By default, almost everything should be removed. Available programs are shown in
 # License
 
 - The original code from [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall) is licensed under the [MIT License](https://github.com/MatiDEV-PL/Clean-Windows/blob/main/MIT%20LICENSE).
-- Modifications and additions made in this project are licensed under the [GPLv3](https://github.com/MatiDEV-PL/Clean-Windows/blob/1.0/LICENSE).
+- Modifications and additions made in this project are licensed under the [GPLv3 License](https://github.com/MatiDEV-PL/Clean-Windows/blob/1.0/LICENSE).
 
 # Sources:
 - [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall)
