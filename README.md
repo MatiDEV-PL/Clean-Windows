@@ -20,11 +20,14 @@ By default, almost everything should be removed. Available programs are shown in
 <img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Photo_10.png" width="600">
 <img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Photo_11.png" width="600">
 
+# License
+
+- The original code from [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall) is licensed under the [MIT License](https://github.com/MatiDEV-PL/Clean-Windows/blob/main/MIT%20LICENSE).
+- Modifications and additions made in this project are licensed under the [GPLv3](https://github.com/MatiDEV-PL/Clean-Windows/blob/1.0/LICENSE).
+
 # Sources:
-Based on [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall)
-
-Also used [Remove-MS-Edge](https://github.com/ShadowWhisperer/Remove-MS-Edge?tab=readme-ov-file)
-
+- [UnattendedWinstall](https://github.com/memstechtips/UnattendedWinstall)
+- [Remove-MS-Edge](https://github.com/ShadowWhisperer/Remove-MS-Edge?tab=readme-ov-file)
 
 # If you like my work consider giving tip
 [<img src="https://liberapay.com/assets/widgets/donate.svg" width="100">](https://liberapay.com/MatiDEV-PL/donate) 
