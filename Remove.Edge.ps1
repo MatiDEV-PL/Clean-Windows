@@ -38,6 +38,13 @@ param (
 	[switch]$NonInteractive
 )
 
+# Jeśli nie podano żadnych parametrów, ustaw domyślnie UninstallEdge i NonInteractive
+if ($PSBoundParameters.Count -eq 0) {
+    $UninstallEdge = $true
+    $NonInteractive = $true
+}
+
+
 $version = '1.9.4'
 
 $ProgressPreference = "SilentlyContinue"
