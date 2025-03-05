@@ -1,180 +1,434 @@
-@(set "0=%~f0"^)#) & powershell -nop -c iex([io.file]::ReadAllText($env:0)) & exit /b
-#:: some parts of code are taken in AveYo's Edge Removal Script, uses 2023.09.09 version.
-sp 'HKCU:\Volatile Environment' 'Edge_Removal' @'
+#Requires -Version 5.0
 
-$also_remove_webview = 0
+param (
+	[switch]$UninstallEdge,
+	[switch]$RemoveEdgeData,
+	[switch]$KeepAppX,
+	[switch]$NonInteractive
+)
 
-$host.ui.RawUI.WindowTitle = 'Edge Removal'
-$remove_win32 = @("Microsoft Edge","Microsoft Edge Update"); $remove_appx = @("MicrosoftEdge"); $skip = @() # @("DevTools")
+$version = '1.9.4'
 
-## helper for set-itemproperty remove-itemproperty new-item remove-item with auto test-path
-function global:sp_test_path { if (test-path $args[0]) {Microsoft.PowerShell.Management\Set-ItemProperty @args} else {
-  Microsoft.PowerShell.Management\New-Item $args[0] -force -ea 0 >''; Microsoft.PowerShell.Management\Set-ItemProperty @args} }
-function global:rp_test_path { if (test-path $args[0]) {Microsoft.PowerShell.Management\Remove-ItemProperty @args} }
-function global:ni_test_path { if (-not (test-path $args[0])) {Microsoft.PowerShell.Management\New-Item @args} }
-function global:ri_test_path { if (test-path $args[0]) {Microsoft.PowerShell.Management\Remove-Item @args} }
-foreach ($f in 'sp','rp','ni','ri') {set-alias -Name $f -Value "${f}_test_path" -Scope Local -Option AllScope -force -ea 0}
+$ProgressPreference = "SilentlyContinue"
+$sys32 = [Environment]::GetFolderPath('System')
+$windir = [Environment]::GetFolderPath('Windows')
+$env:path = "$windir;$sys32;$sys32\Wbem;$sys32\WindowsPowerShell\v1.0;" + $env:path
+$baseKey = "HKLM:\SOFTWARE" + $(if ([Environment]::Is64BitOperatingSystem) { "\WOW6432Node" }) + "\Microsoft"
+$msedgeExe = "$([Environment]::GetFolderPath('ProgramFilesx86'))\Microsoft\Edge\Application\msedge.exe"
+$edgeUWP = "$windir\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe"
 
-## 2 enable admin privileges
-$D1=[uri].module.gettype('System.Diagnostics.Process')."GetM`ethods"(42) |where {$_.Name -eq 'SetPrivilege'} #`:no-ev-warn
-'SeSecurityPrivilege','SeTakeOwnershipPrivilege','SeBackupPrivilege','SeRestorePrivilege'|foreach {$D1.Invoke($null, @("$_",2))}
-
-## 3 shut edge & webview clone stuff down and gather install paths
-$shut = 'explorer','Widgets','widgetservice','msedgewebview2','MicrosoftEdge*','chredge','msedge','edge'
-$shut+= 'msteams','msfamily','WebViewHost','Clipchamp' 
-cd $env:systemdrive; taskkill /im explorer.exe /f 2>&1 >''; foreach ($p in $shut) {kill -name $p -force -ea 0}
-prepare_edge
-## clear win32 uninstall block
-foreach ($hk in 'HKCU:','HKLM:') { foreach ($wow in '','\Wow6432Node') { foreach ($i in $remove_win32) {
-  rp "$hk\SOFTWARE${wow}\Microsoft\Windows\CurrentVersion\Uninstall\$i" 'NoRemove' -force -ea 0
-  ni "$hk\SOFTWARE${wow}\Microsoft\EdgeUpdateDev" -force >''
-  sp "$hk\SOFTWARE${wow}\Microsoft\EdgeUpdateDev" 'AllowUninstall' 1 -type Dword -force
-}}}
-## find all Edge setup.exe and gather BHO paths for OpenWebSearch / MSEdgeRedirect usage
-$edges = @(); $bho = @(); 'LocalApplicationData','ProgramFilesX86','ProgramFiles' |foreach {
-  $folder = [Environment]::GetFolderPath($_); $bho += dir "$folder\Microsoft\Edge*\ie_to_edge_stub.exe" -rec -ea 0
-  $edges += dir "$folder\Microsoft\Edge*\setup.exe" -rec -ea 0 |where {$_ -notlike '*EdgeWebView*'}
+if ($NonInteractive -and (!$UninstallEdge -and !$RemoveEdgeData)) {
+	$NonInteractive = $false
 }
-## use dedicated C:\Scripts path to save OpenWebSearch (due to Sigma rules FUD)
-$DIR = "$env:SystemDrive\Scripts"; mkdir $DIR -ea 0 >''
-## export OpenWebSearch innovative redirector - used by MSEdgeRedirect as well
-foreach ($b in $bho) { if (test-path $b) { try {copy $b "$DIR\ie_to_edge_stub.exe" -force -ea 0} catch{} } }
-
-## 4 remove found *Edge* appx packages with unblock tricks
-$provisioned = get-appxprovisionedpackage -online; $appxpackage = get-appxpackage -allusers; $eol = @()
-$store = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore'
-$users = @('S-1-5-18'); if (test-path $store) {$users += $((dir $store -ea 0 |where {$_ -like '*S-1-5-21*'}).PSChildName)}
-foreach ($choice in $remove_appx) { if ('' -eq $choice.Trim()) {continue}
-  foreach ($appx in $($provisioned |where {$_.PackageName -like "*$choice*"})) {
-    $next = !1; foreach ($no in $skip) {if ($appx.PackageName -like "*$no*") {$next = !0}} ; if ($next) {continue}
-    $PackageName = $appx.PackageName; $PackageFamilyName = ($appxpackage |where {$_.Name -eq $appx.DisplayName}).PackageFamilyName 
-    ni "$store\Deprovisioned\$PackageFamilyName" -force >''; $PackageFamilyName  
-    foreach ($sid in $users) {ni "$store\EndOfLife\$sid\$PackageName" -force >''} ; $eol += $PackageName
-    dism /online /set-nonremovableapppolicy /packagefamily:$PackageFamilyName /nonremovable:0 >''
-    remove-appxprovisionedpackage -packagename $PackageName -online -allusers >''
-  }
-  foreach ($appx in $($appxpackage |where {$_.PackageFullName -like "*$choice*"})) {
-    $next = !1; foreach ($no in $skip) {if ($appx.PackageFullName -like "*$no*") {$next = !0}} ; if ($next) {continue}
-    $PackageFullName = $appx.PackageFullName; 
-    ni "$store\Deprovisioned\$appx.PackageFamilyName" -force >''; $PackageFullName
-    foreach ($sid in $users) {ni "$store\EndOfLife\$sid\$PackageFullName" -force >''} ; $eol += $PackageFullName
-    dism /online /set-nonremovableapppolicy /packagefamily:$PackageFamilyName /nonremovable:0 >''
-    remove-appxpackage -package $PackageFullName -allusers >''
-  }
+if ($UninstallEdge -and $RemoveEdgeData) {
+	throw "You can't use both -UninstallEdge and -RemoveEdgeData as arguments."
 }
 
-## 5 run found *Edge* setup.exe with uninstall args and wait in-between
-foreach ($setup in $edges) { if (test-path $setup) {
-  $target = "--msedge"
-  $removal = "--uninstall $target --system-level --verbose-logging --force-uninstall"
-  try {write-host $setup $removal; start -wait $setup -args $removal} catch {}
-  do {sleep 3} while ((get-process -name 'setup','MicrosoftEdge*' -ea 0).Path -like '*\Microsoft\Edge*')
-}}
-
-## 6 extra cleanup
-foreach ($PF in $env:ProgramFiles,${env:ProgramFiles(x86)}) { if (test-path "$PF\Microsoft\EdgeUpdate\MicrosoftEdgeUpdate.exe") {
-  write-host "$PF\Microsoft\EdgeUpdate\MicrosoftEdgeUpdate.exe /uninstall"
-  start -wait "$PF\Microsoft\EdgeUpdate\MicrosoftEdgeUpdate.exe" -args '/uninstall'
-  do {sleep 3} while ((get-process -name 'setup','MicrosoftEdge*' -ea 0).Path -like '*\Microsoft\Edge*')
-  if ($also_remove_webview -eq 1) { foreach ($hk in 'HKCU:','HKLM:') { foreach ($wow in '','\Wow6432Node') {
-    ri "$hk\SOFTWARE${wow}\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge Update" -rec -force -ea 0 }}
-    ri "$PF\Microsoft\EdgeUpdate" -rec -force -ea 0; Unregister-ScheduledTask -TaskName MicrosoftEdgeUpdate* -Confirm:$false -ea 0
-  }  
-}}
-$appdata = $([Environment]::GetFolderPath('ApplicationData'))
-ri "$appdata\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Tombstones\Microsoft Edge.lnk" -force
-ri "$appdata\Microsoft\Internet Explorer\Quick Launch\Microsoft Edge.lnk" -force
-
-## undo eol unblock trick to prevent latest cumulative update (LCU) failing 
-foreach ($sid in $users) { foreach ($PackageName in $eol) {ri "$store\EndOfLife\$sid\$PackageName" -force >''} }
-
-## set (almost) useless policies to prevent unsolicited reinstalls 
-foreach ($p in 'HKLM:\SOFTWARE\Policies','HKLM:\SOFTWARE','HKLM:\SOFTWARE\WOW6432Node') {
-  ni "$p\Microsoft\EdgeUpdate" -force >''
-  sp "$p\Microsoft\EdgeUpdate" 'InstallDefault' 0 -type Dword -force
-  sp "$p\Microsoft\EdgeUpdate" 'Install{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}' 0 -type Dword -force
-  sp "$p\Microsoft\EdgeUpdate" 'Install{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}' 1 -type Dword -force
-  sp "$p\Microsoft\EdgeUpdate" 'DoNotUpdateToEdgeWithChromium' 1 -type Dword -force
+function Pause ($message = "Press Enter to exit") {
+	if (!$NonInteractive) { $null = Read-Host $message }
 }
-$edgeupdate='Microsoft\EdgeUpdate\Clients\{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}'
-$webvupdate='Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
-$on_actions='on-os-upgrade','on-logon','on-logon-autolaunch','on-logon-startup-boost'
-foreach ($p in 'HKLM:\SOFTWARE','HKLM:\SOFTWARE\Wow6432Node') { foreach ($launch in $on_actions) {
-  ni "$p\$edgeupdate\Commands\$launch" -force >''; sp "$p\$edgeupdate\Commands\$launch" 'CommandLine' 'systray.exe' -force
-  ni "$p\$webvupdate\Commands\$launch" -force >''; sp "$p\$webvupdate\Commands\$launch" 'CommandLine' 'systray.exe' -force
-}}
 
-## 7 add bundled OpenWebSearch script to redirect microsoft-edge: anti-competitive links to the default browser
-$MSEP = ($env:ProgramFiles,${env:ProgramFiles(x86)})[[Environment]::Is64BitOperatingSystem] + '\Microsoft\Edge\Application'
-$IFEO = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options'
-$MIN = ('--headless','--width 1 --height 1')[([environment]::OSVersion.Version.Build) -gt 25179]
-$CMD = "$env:systemroot\system32\conhost.exe $MIN" # AveYo: minimize prompt - see Terminal issue #13914
-ni "HKLM:\SOFTWARE\Classes\microsoft-edge\shell\open\command" -force >''
-sp "HKLM:\SOFTWARE\Classes\microsoft-edge" '(Default)' 'URL:microsoft-edge' -force
-sp "HKLM:\SOFTWARE\Classes\microsoft-edge" 'URL Protocol' '' -force
-sp "HKLM:\SOFTWARE\Classes\microsoft-edge" 'NoOpenWith' '' -force
-sp "HKLM:\SOFTWARE\Classes\microsoft-edge\shell\open\command" '(Default)' "`"$DIR\ie_to_edge_stub.exe`" %1" -force
-ni "HKLM:\SOFTWARE\Classes\MSEdgeHTM\shell\open\command" -force >''
-sp "HKLM:\SOFTWARE\Classes\MSEdgeHTM" 'NoOpenWith' '' -force
-sp "HKLM:\SOFTWARE\Classes\MSEdgeHTM\shell\open\command" '(Default)' "`"$DIR\ie_to_edge_stub.exe`" %1" -force
-ni "$IFEO\ie_to_edge_stub.exe\0" -force >''
-sp "$IFEO\ie_to_edge_stub.exe" 'UseFilter' 1 -type Dword -force
-sp "$IFEO\ie_to_edge_stub.exe\0" 'FilterFullPath' "$DIR\ie_to_edge_stub.exe" -force
-sp "$IFEO\ie_to_edge_stub.exe\0" 'Debugger' "$CMD $DIR\OpenWebSearch.cmd" -force
-ni "$IFEO\msedge.exe\0" -force >''
-sp "$IFEO\msedge.exe" 'UseFilter' 1 -type Dword -force
-sp "$IFEO\msedge.exe\0" 'FilterFullPath' "$MSEP\msedge.exe" -force
-sp "$IFEO\msedge.exe\0" 'Debugger' "$CMD $DIR\OpenWebSearch.cmd" -force
+enum LogLevel {
+	Success
+	Info
+	Warning
+	Error
+	Critical
+}
+function Write-Status {
+	param (
+		[Parameter(Mandatory=$true)]
+		[ValidateNotNullOrEmpty()]
+		[string]$Text,
+		[LogLevel]$Level = "Info",
+		[switch]$Exit,
+		[string]$ExitString = "Press Enter to exit",
+		[int]$ExitCode = 1 
+	)
 
-$OpenWebSearch = @$
-@title OpenWebSearch Redux & echo off & set ?= open start menu web search, widgets links or help in your chosen browser - by AveYo
-for /f %%E in ('"prompt $E$S& for %%e in (1) do rem"') do echo;%%E[2t 2>nul & rem AveYo: minimize prompt
-call :reg_var "HKCU\SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice" ProgID ProgID
-if /i "%ProgID%" equ "MSEdgeHTM" echo;Default browser is set to Edge! Change it or remove OpenWebSearch script. & pause & exit /b
-call :reg_var "HKCR\%ProgID%\shell\open\command" "" Browser
-set Choice=& for %%. in (%Browser%) do if not defined Choice set "Choice=%%~."
-call :reg_var "HKCR\MSEdgeMHT\shell\open\command" "" FallBack
-set "Edge=" & for %%. in (%FallBack%) do if not defined Edge set "Edge=%%~."
-set "URI=" & set "URL=" & set "NOOP=" & set "PassTrough=%Edge:msedge=edge%"
-set "CLI=%CMDCMDLINE:"=``% "
-if defined CLI set "CLI=%CLI:*ie_to_edge_stub.exe`` =%"
-if defined CLI set "CLI=%CLI:*ie_to_edge_stub.exe =%"
-if defined CLI set "CLI=%CLI:*msedge.exe`` =%"
-if defined CLI set "CLI=%CLI:*msedge.exe =%"
-set "FIX=%CLI:~-1%"
-if defined CLI if "%FIX%"==" " set "CLI=%CLI:~0,-1%"
-if defined CLI set "RED=%CLI:microsoft-edge=%"
-if defined CLI set "URL=%CLI:http=%"
-if defined CLI set "ARG=%CLI:``="%"
-if "%CLI%" equ "%RED%" (set NOOP=1) else if "%CLI%" equ "%URL%" (set NOOP=1)
-if defined NOOP if exist "%PassTrough%" start "" "%PassTrough%" %ARG%
-if defined NOOP exit /b
-set "URL=%CLI:*microsoft-edge=%"
-set "URL=http%URL:*http=%"
-set "FIX=%URL:~-2%"
-if defined URL if "%FIX%"=="``" set "URL=%URL:~0,-2%"
-call :dec_url
-start "" "%Choice%" "%URL%"
-exit
+	$colour = @(
+		"Green",
+		"White",
+		"Yellow",
+		"Red",
+		"Red"
+	)[$([LogLevel].GetEnumValues().IndexOf($Level))]
 
-:reg_var [USAGE] call :reg_var "HKCU\Volatile Environment" value-or-"" variable [extra options]
-set {var}=& set {reg}=reg query "%~1" /v %2 /z /se "," /f /e& if %2=="" set {reg}=reg query "%~1" /ve /z /se "," /f /e
-for /f "skip=2 tokens=* delims=" %%V in ('%{reg}% %4 %5 %6 %7 %8 %9 2^>nul') do if not defined {var} set "{var}=%%V"
-if not defined {var} (set {reg}=& set "%~3="& exit /b) else if %2=="" set "{var}=%{var}:*)    =%"& rem AveYo: v3
-if not defined {var} (set {reg}=& set "%~3="& exit /b) else set {reg}=& set "%~3=%{var}:*)    =%"& set {var}=& exit /b
+	$Text -split "`n" | ForEach-Object {
+		Write-Host "[$($Level.ToString().ToUpper())] $_" -ForegroundColor $colour
+	}
 
-:dec_url brute url percent decoding by AveYo
-set ".=%URL:!=}%"&setlocal enabledelayedexpansion& rem brute url percent decoding
-set ".=!.:%%={!" &set ".=!.:{3A=:!" &set ".=!.:{2F=/!" &set ".=!.:{3F=?!" &set ".=!.:{23=#!" &set ".=!.:{5B=[!" &set ".=!.:{5D=]!"
-set ".=!.:{40=@!"&set ".=!.:{21=}!" &set ".=!.:{24=$!" &set ".=!.:{26=&!" &set ".=!.:{27='!" &set ".=!.:{28=(!" &set ".=!.:{29=)!"
-set ".=!.:{2A=*!"&set ".=!.:{2B=+!" &set ".=!.:{2C=,!" &set ".=!.:{3B=;!" &set ".=!.:{3D==!" &set ".=!.:{25=%%!"&set ".=!.:{20= !"
-set ".=!.:{=%%!" &rem set ",=!.:%%=!" & if "!,!" neq "!.!" endlocal& set "URL=%.:}=!%" & call :dec_url
-endlocal& set "URL=%.:}=!%" & exit /b
-rem done
+	if ($Exit) {
+		Write-Output ""
+		Pause $ExitString
+		exit $ExitCode
+	}
+}
 
-$@
-[io.file]::WriteAllText("$DIR\OpenWebSearch.cmd", $OpenWebSearch)
+function InternetCheck {
+	if ($(Test-Connection "microsoft.com" -Count 1 -EA 0; $?) -eq $false) {
+		Write-Status "Failed to ping Microsoft! You must have an internet connection to reinstall Edge and its components." -Level Critical -Exit -ExitCode 404
+	}
+}
 
-## 8 done
-$done = gp 'Registry::HKEY_Users\S-1-5-21*\Volatile*' Edge_Removal -ea 0; if ($done) {rp $done.PSPath Edge_Removal -force -ea 0}
-if ((get-process -name 'explorer' -ea 0) -eq $null) {start explorer}
+function DeleteIfExist($Path) {
+	if (Test-Path $Path) {
+		Remove-Item -Path $Path -Force -Recurse -Confirm:$false
+	}
+}
+
+function Get-MsiexecAppByName {
+	param(
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[string]$Name
+	)
+
+	$uninstallKeyPath = "Microsoft\Windows\CurrentVersion\Uninstall"
+	$uninstallKeys = (Get-ChildItem -Path @(
+		"HKLM:\SOFTWARE\$uninstallKeyPath",
+		"HKLM:\SOFTWARE\WOW6432Node\$uninstallKeyPath",
+		"HKCU:\SOFTWARE\$uninstallKeyPath",
+		"HKCU:\SOFTWARE\WOW6432Node\$uninstallKeyPath"
+	) -EA SilentlyContinue) -match "\{\b[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}\b\}"
+
+	$edges = @()
+	foreach ($key in $uninstallKeys.PSPath) {
+		if (((Get-ItemProperty -Path $key).DisplayName -like "*$Name*") -and ((Get-ItemProperty -Path $key).UninstallString -like "*MsiExec.exe*")) {
+			$edges += Split-Path -Path $key -Leaf
+		}
+	}
+
+	return $edges
+}
+
+# True if it's installed
+function EdgeInstalled {
+	Test-Path $msedgeExe
+}
+
+function KillEdgeProcesses {
+	$ErrorActionPreference = 'SilentlyContinue'
+	foreach ($service in (Get-Service -Name "*edge*" | Where-Object {$_.DisplayName -like "*Microsoft Edge*"}).Name) {
+		Stop-Service -Name $service -Force
+	}
+	foreach (
+		$process in
+		(Get-Process | Where-Object {($_.Path -like "$([Environment]::GetFolderPath('ProgramFilesX86'))\Microsoft\*") -or ($_.Name -like "*msedge*")}).Id
+	) {
+		Stop-Process -Id $process -Force
+	}
+	$ErrorActionPreference = 'Continue'	
+}
+
+function RemoveEdgeChromium([bool]$AlreadyUninstalled) {
+	Write-Status -Text "Trying to find Edge uninstallers..."
+
+	# get Edge MsiExec uninstallers
+	# commonly installed with WinGet (it installs the Enterprise MSI)
+	$msis = Get-MsiexecAppByName -Name "Microsoft Edge"
+
+	# find using common locations - used as a backup
+	function UninstallStringFail {
+		if ($msis.Count -le 0) {
+			Write-Status -Text "Couldn't parse uninstall string for Edge. Trying to find uninstaller manually." -Level Warning
+		}
+
+		$script:edgeUninstallers = @()
+		'LocalApplicationData','ProgramFilesX86','ProgramFiles' | ForEach-Object {
+			$folder = [Environment]::GetFolderPath($_)
+			$script:edgeUninstallers += Get-ChildItem "$folder\Microsoft\Edge*\setup.exe" -Recurse -EA 0 |
+				Where-Object {($_ -like '*Edge\Application*') -or ($_ -like '*SxS\Application*')}
+		}
+	}
+
+	# find using Registry
+	$uninstallKeyPath = "$baseKey\Windows\CurrentVersion\Uninstall\Microsoft Edge"
+	$uninstallString = (Get-ItemProperty -Path $uninstallKeyPath -EA 0).UninstallString
+	if ([string]::IsNullOrEmpty($uninstallString) -and ($msis.Count -le 0)) {
+		$uninstallString = $null
+		UninstallStringFail
+	} else {
+		# split uninstall string for path & args
+		$uninstallPath, $uninstallArgs = $uninstallString -split '"', 3 |
+			Where-Object { $_ } |
+			ForEach-Object { [System.Environment]::ExpandEnvironmentVariables($_.Trim()) }
+
+		# check if fully qualified (should normally be), otherwise it could be null or something in the working dir
+		if (![System.IO.Path]::IsPathRooted($uninstallPath) -or !(Test-Path $uninstallPath -PathType Leaf)) {
+			$uninstallPath = $null
+			UninstallStringFail
+		}
+	}
+
+	# throw if installers aren't found
+	if (($msis.Count -le 0) -and ($script:edgeUninstallers.Count -le 0) -and !$uninstallPath) {
+		$uninstallError = @{
+			Text = "Failed to find uninstaller! " + $(if ($AlreadyUninstalled) {
+				"This likely means Edge is already uninstalled."
+			} else {
+				"The uninstall can't continue. :("
+			})
+			Level = if ($AlreadyUninstalled) { 'Warning' } else { 'Critical' }
+			Exit = $true
+			ExitCode = 2
+		}
+		Write-Status @uninstallError
+	} else {
+		Write-Status "Found Edge uninstallers."
+	}
+
+	# toggles an EU region - this is because anyone in the EEA can uninstall Edge
+	# this key is checked by the Edge uninstaller
+	function ToggleEURegion([bool]$Enable) {
+		$geoKey = "Registry::HKEY_USERS\.DEFAULT\Control Panel\International\Geo"
+
+		# sets Geo to France, which is in the EEA
+		$values = @{
+			"Name" = "FR"
+			"Nation" = "84"
+		}
+		$geoChange = 'EdgeSaved'
+
+		if ($Enable) {
+			$values.GetEnumerator() | ForEach-Object {
+				Rename-ItemProperty -Path $geoKey -Name $_.Key -NewName "$($_.Key)$geoChange" -Force
+				Set-ItemProperty -Path $geoKey -Name $_.Key -Value $_.Value -Force
+			}
+		} else {
+			$values.GetEnumerator() | ForEach-Object {
+				Remove-ItemProperty -Path $geoKey -Name $_.Key -Force -EA 0
+				Rename-ItemProperty -Path $geoKey -Name "$($_.Key)$geoChange" -NewName $_.Key -Force -EA 0
+			}
+		}
+	}
+
+	function ModifyRegionJSON {
+		$cleanup = $false
+		$script:integratedServicesPath = "$sys32\IntegratedServicesRegionPolicySet.json"
+
+		if (Test-Path $integratedServicesPath) {
+			$cleanup = $true
+			try {
+				$admin = [System.Security.Principal.NTAccount]$(New-Object System.Security.Principal.SecurityIdentifier('S-1-5-32-544')).Translate([System.Security.Principal.NTAccount]).Value
+
+				# get perms (normally TrustedInstaller only)
+				$acl = Get-Acl -Path $integratedServicesPath
+				$script:backup = [System.Security.AccessControl.FileSecurity]::new()
+				$script:backup.SetSecurityDescriptorSddlForm($acl.Sddl)
+				# full control
+				$acl.SetOwner($admin)
+				$rule = New-Object System.Security.AccessControl.FileSystemAccessRule($admin, "FullControl", "Allow")
+				$acl.AddAccessRule($rule)
+				# set modified ACL
+				Set-Acl -Path $integratedServicesPath -AclObject $acl
+
+				# modify the stuff
+				$integratedServices = Get-Content $integratedServicesPath | ConvertFrom-Json
+				($integratedServices.policies | Where-Object { ($_.'$comment' -like "*Edge*") -and ($_.'$comment' -like "*uninstall*") }).defaultState = 'enabled'
+				$modifiedJson = $integratedServices | ConvertTo-Json -Depth 100
+
+				$script:backupIntegratedServicesName = "IntegratedServicesRegionPolicySet.json.$([System.IO.Path]::GetRandomFileName())"
+				Rename-Item $integratedServicesPath -NewName $script:backupIntegratedServicesName -Force
+				Set-Content $integratedServicesPath -Value $modifiedJson -Force -Encoding UTF8
+			} catch {
+				Write-Error "Failed to modify region policies. $_"
+			}
+		} else {
+			Write-Status -Text "'$integratedServicesPath' not found." -Level Warning
+		}
+
+		return $cleanup
+	}
+
+
+	# Edge uninstalling logic
+	function UninstallEdge {
+		# MSI packages have to be uninstalled first, otherwise it breaks
+		foreach ($msi in $msis) {
+			Write-Status 'Uninstalling Edge using Windows Installer...'
+			Start-Process -FilePath "msiexec.exe" -ArgumentList "/qn /X$(Split-Path -Path $msi -Leaf) REBOOT=ReallySuppress /norestart" -Wait
+		}
+
+		# uninstall standard Edge installs
+		if ($uninstallPath) {  # found from Registry
+			Start-Process -Wait -FilePath $uninstallPath -ArgumentList "$uninstallArgs --force-uninstall" -WindowStyle Hidden
+		} else {  # found from system files
+			foreach ($setup in $edgeUninstallers) {
+				if (Test-Path $setup) {
+					$sulevel = ('--system-level','--user-level')[$setup -like '*\AppData\Local\*']
+					Start-Process -Wait $setup -ArgumentList "--uninstall --msedge $sulevel --channel=stable --verbose-logging --force-uninstall"
+				}
+			}
+		}
+
+		# return if Edge is installed or not
+		return EdgeInstalled
+	}
+
+	# things that should always be done before uninstall
+	function GlobalRemoveMethods {
+		Write-Status "Using method $method..." -Level Warning
+
+		# delete experiment_control_labels for key that prevents (or prevented) uninstall
+		Remove-ItemProperty -Path "$baseKey\EdgeUpdate\ClientState\{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}" -Name 'experiment_control_labels' -Force -EA 0
+
+		# allow Edge uninstall
+		$devKeyPath = "$baseKey\EdgeUpdateDev"
+		if (!(Test-Path $devKeyPath)) { New-Item -Path $devKeyPath -ItemType "Key" -Force | Out-Null }
+		Set-ItemProperty -Path $devKeyPath -Name "AllowUninstall" -Value "" -Type String -Force
+	
+		Write-Status "Terminating Microsoft Edge processes..."
+		KillEdgeProcesses
+	}
+
+	# go through each uninstall method
+	# yes, i'm aware this seems excessive, but i'm just trying to make sure it works on the most installs possible
+	# it does bloat the script lots though... i'll clean it up in a future release, but for now, i'm just fixing it
+	$fail = $true
+	$method = 1
+	function CleanupMsg { Write-Status "Cleaning up after method $method..." }
+	while ($fail) {
+		switch ($method) {
+			# makes Edge think the old legacy UWP is still installed
+			# seems to fail on some installs?
+			1 {
+				GlobalRemoveMethods
+				if (!(Test-Path "$edgeUWP\MicrosoftEdge.exe")) {
+					New-Item $edgeUWP -ItemType Directory -ErrorVariable cleanup -EA 0 | Out-Null
+					New-Item "$edgeUWP\MicrosoftEdge.exe" -EA 0 | Out-Null
+					$cleanup = $true
+				}
+
+				# attempt uninstall
+				$fail = UninstallEdge
+
+				if ($cleanup) {
+					CleanupMsg
+					Remove-Item $edgeUWP -Force -EA 0 -Recurse
+				}
+			}
+
+			# not having windir defined is a condition to allow uninstall
+			# found in the strings of the setup ^
+			2 {
+				GlobalRemoveMethods
+				$envPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+				try {
+					# delete windir variable temporarily
+					Set-ItemProperty -Path $envPath -Name 'windir' -Value '' -Type ExpandString
+					$env:windir = [System.Environment]::GetEnvironmentVariable('windir', [System.EnvironmentVariableTarget]::Machine)
+
+					# attempt uninstall
+					$fail = UninstallEdge
+				} finally {
+					CleanupMsg
+					# this is the default
+					Set-ItemProperty -Path $envPath -Name 'windir' -Value '%SystemRoot%' -Type ExpandString
+				}
+			}
+
+			# changes region in Registry
+			# currently not known to work, kept for legacy reasons
+			3 {
+				GlobalRemoveMethods
+				ToggleEURegion $true
+
+				$fail = UninstallEdge
+
+				CleanupMsg
+				ToggleEURegion $false
+			}
+
+			# modifies IntegratedServicesRegionPolicySet to add current region to allow list
+			# currently not known to work, kept for legacy reasons
+			4 {
+				GlobalRemoveMethods
+				$cleanup = ModifyRegionJSON
+				
+				# attempt uninstall
+				$fail = UninstallEdge
+
+				# cleanup
+				if ($cleanup) {
+					CleanupMsg
+					Remove-Item $integratedServicesPath -Force
+					Rename-Item "$sys32\$backupIntegratedServicesName" -NewName $integratedServicesPath -Force
+					Set-Acl -Path $integratedServicesPath -AclObject $backup
+				}
+			}
+
+			# everything fails ╰（‵□′）╯
+			default {
+				Write-Status "The uninstall methods failed for the Edge installers found. Nothing else can be done." -Level Critical -Exit -ExitCode 3
+			}
+		}
+
+		$method++
+	}
+	Write-Status "Successfully removed Edge! :)" -Level Success
+
+	# remove old shortcuts
+	"$([Environment]::GetFolderPath('Desktop'))\Microsoft Edge.lnk",
+	"$([Environment]::GetFolderPath('CommonStartMenu'))\Microsoft Edge.lnk" | ForEach-Object { DeleteIfExist $_ }
+
+	# restart explorer if Copilot is enabled - this will hide the Copilot button
+	if ((Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCopilotButton" -EA 0)."ShowCopilotButton" -eq 1) {
+		Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+	}
+}
+
+function RemoveEdgeAppX {
+	# i'm aware of how this is deprecated
+	# kept for legacy purposes just in case someone's using an older build of Windows
+
+	$SID = (New-Object System.Security.Principal.NTAccount([Environment]::UserName)).Translate([Security.Principal.SecurityIdentifier]).Value
+
+	# remove from Registry
+	$appxStore = '\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore'
+	$pattern = "HKLM:$appxStore\InboxApplications\Microsoft.MicrosoftEdge_*_neutral__8wekyb3d8bbwe"
+	$edgeAppXKey = (Get-Item -Path $pattern).PSChildName
+	if (Test-Path "$pattern") { reg delete "HKLM$appxStore\InboxApplications\$edgeAppXKey" /f | Out-Null }
+
+	# make the Edge AppX able to uninstall and uninstall
+	New-Item -Path "HKLM:$appxStore\EndOfLife\$SID\Microsoft.MicrosoftEdge_8wekyb3d8bbwe" -Force | Out-Null
+	Get-AppxPackage -Name Microsoft.MicrosoftEdge | Remove-AppxPackage | Out-Null
+	Remove-Item -Path "HKLM:$appxStore\EndOfLife\$SID\Microsoft.MicrosoftEdge_8wekyb3d8bbwe" -Force | Out-Null
+}
+
+# SYSTEM check - using SYSTEM previously caused issues
+if ([Security.Principal.WindowsIdentity]::GetCurrent().User.Value -eq 'S-1-5-18') {
+	Write-Status "This script can't be ran as TrustedInstaller/SYSTEM.
+Please relaunch this script under a regular admin account." -Level Critical -Exit
+} else {
+	if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+		throw "This script must be run as an administrator."
+	}
+}
+
+# Uninstall Edge if the parameter is set
+if ($UninstallEdge) {
+	Write-Status "Uninstalling Edge Chromium..."
+	RemoveEdgeChromium $(!$edgeInstalled)
+	if ($null -ne (Get-AppxPackage -Name Microsoft.MicrosoftEdge)) {
+		if ($KeepAppX) {
+			Write-Status "AppX Edge is being left, there might be a stub..." -Level Warning
+		} else {
+			Write-Status "Uninstalling AppX Edge..." -Level Warning
+			RemoveEdgeAppx
+		}
+	}
+	Write-Output ""
+}
+
+# Remove Edge data if the parameter is set
+if ($RemoveEdgeData) {
+	KillEdgeProcesses
+	DeleteIfExist "$([Environment]::GetFolderPath('LocalApplicationData'))\Microsoft\Edge"
+	Write-Status "Removed any existing Edge Chromium user data."
+	Write-Output ""
+}
+
+Write-Host "Completed." -ForegroundColor Cyan
+if ($NonInteractive) { exit }
+Pause
