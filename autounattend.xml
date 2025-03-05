@@ -1752,7 +1752,15 @@ goto download
 set "browserName=DuckDuckGo"
 set "fileName=DuckDuckGo.msixbundle"
 set "url=https://staticcdn.duckduckgo.com/windows-desktop-browser/help-pages/DuckDuckGo.msixbundle"
-set "frameworkUrl=https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
+
+if "%arch%"=="64" (
+    set "frameworkUrl=https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
+    set "frameworkFileName=Microsoft.VCLibs.x64.14.00.Desktop.appx"
+) else (
+    set "frameworkUrl=https://aka.ms/Microsoft.VCLibs.x86.14.00.Desktop.appx"
+    set "frameworkFileName=Microsoft.VCLibs.x86.14.00.Desktop.appx"
+)
+
 cls
 echo Downloading %browserName%...
 curl -L -o "%downloadDir%\%fileName%" "%url%"
@@ -1762,14 +1770,14 @@ if %errorlevel% neq 0 (
 )
 cls
 echo Downloading required framework...
-curl -L -o "%downloadDir%\Microsoft.VCLibs.x64.14.00.Desktop.appx" "%frameworkUrl%"
+curl -L -o "%downloadDir%\%frameworkFileName%" "%frameworkUrl%"
 if %errorlevel% neq 0 (
     echo Error downloading framework. Exiting.
     exit /B 1
 )
 cls
 echo Installing required framework...
-powershell -Command "Add-AppxPackage -Path '%downloadDir%\Microsoft.VCLibs.x64.14.00.Desktop.appx'"
+powershell -Command "Add-AppxPackage -Path '%downloadDir%\%frameworkFileName%'"
 if %errorlevel% neq 0 (
     echo Error installing framework. Exiting.
     exit /B 1
