@@ -4,14 +4,43 @@
 	xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
 	<settings pass="offlineServicing"></settings>
 	<settings pass="windowsPE">
-		<component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+		<component name="Microsoft-Windows-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
 			<UserData>
-				<AcceptEula>true</AcceptEula>
 				<ProductKey>
 					<Key>00000-00000-00000-00000-00000</Key>
-					<WillShowUI>Always</WillShowUI>
-					<!-- This ensures the UI will show to select the edition of Windows -->
 				</ProductKey>
+        <AcceptEula>true</AcceptEula>
+			</UserData>
+			<RunSynchronous>
+        <!--Prevents auto detection of Windows Edition and forces Windows Setup to show all available Editions of Windows during setup.-->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <Path>cmd.exe /c del /f /q X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <Path>cmd.exe /c echo [Channel] > X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>3</Order>
+          <Path>cmd.exe /c echo _Default >> X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>4</Order>
+          <Path>cmd.exe /c echo [VL] >> X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>5</Order>
+          <Path>cmd.exe /c echo 0 >> X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+			</RunSynchronous>
+		</component>
+		<component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<UserData>
+				<ProductKey>
+					<Key>00000-00000-00000-00000-00000</Key>
+				</ProductKey>
+        <AcceptEula>true</AcceptEula>
 			</UserData>
 			<RunSynchronous>
 				<!--Bypass Windows 11 System Requirements-->
@@ -39,11 +68,146 @@
 					<Order>6</Order>
 					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassDiskCheck /t REG_DWORD /d 1 /f</Path>
 				</RunSynchronousCommand>
+        <!--Prevents auto detection of Windows Edition and forces Windows Setup to show all available Editions of Windows during setup.-->
+        <RunSynchronousCommand wcm:action="add">
+          <Order>7</Order>
+          <Path>cmd.exe /c del /f /q X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>8</Order>
+          <Path>cmd.exe /c echo [Channel] > X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>9</Order>
+          <Path>cmd.exe /c echo _Default >> X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>10</Order>
+          <Path>cmd.exe /c echo [VL] >> X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>11</Order>
+          <Path>cmd.exe /c echo 0 >> X:\Sources\ei.cfg</Path>
+        </RunSynchronousCommand>
 			</RunSynchronous>
 		</component>
 	</settings>
 	<settings pass="generalize"></settings>
 	<settings pass="specialize">
+		<component name="Microsoft-Windows-Deployment" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<RunSynchronous>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>1</Order>
+					<Description>Extracts and Executes Scripts in this XML File</Description>
+					<Path>powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb -ArgumentList $xml;"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>2</Order>
+					<Description>Loads the Default User Registry Hive so Changes Can be Made to It</Description>
+					<Path>reg.exe load "HKU\DefaultUser" "C:\Users\Default\NTUSER.DAT"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>3</Order>
+					<Description>Executes the remove-packages Powershell Script</Description>
+					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-packages.ps1' -Raw | Invoke-Expression;"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>4</Order>
+					<Description>Executes the remove-caps Powershell Script</Description>
+					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-caps.ps1' -Raw | Invoke-Expression;"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>5</Order>
+					<Description>Executes the remove-features Powershell Script</Description>
+					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-features.ps1' -Raw | Invoke-Expression;"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>6</Order>
+					<Description>Run Chris Titus WinUtil Tweaks</Description>
+					<Path>cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log" 2&gt;&amp;1"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>7</Order>
+					<Description>Executes the HKLM Registry Entries Script</Description>
+					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\localmachine.cmd &gt;&gt;"C:\Windows\Setup\Scripts\localmachine.log" 2&gt;&amp;1"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>8</Order>
+					<Description>Registry Entry to Execute the HKCU Registry Entry Script the First Time a New User Logs In</Description>
+					<Path>reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Runonce" /v "currentuser" /t REG_SZ /d "C:\Windows\Setup\Scripts\currentuser.cmd" /f</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>9</Order>
+					<Description>Registry Entry to Execute the HKU\DefaultUser Registry Entries Script</Description>
+					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\defaultuser.cmd &gt;&gt;"C:\Windows\Setup\Scripts\defaultuser.log" 2&gt;&amp;1"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>10</Order>
+					<Description>Executes the EdgeRemoval batch file</Description>
+					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\edgeremoval.bat &gt;&gt;"C:\Windows\Setup\Scripts\edgeremoval.log" 2&gt;&amp;1"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>11</Order>
+    			<Description>Delete WFS.exe from System32</Description>
+    			<Path>cmd.exe /c del "C:\Windows\System32\WFS.exe"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>12</Order>
+    			<Description>Delete SnippingTool.exe from System32</Description>
+    			<Path>cmd.exe /c del "C:\Windows\System32\SnippingTool.exe"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>13</Order>
+    			<Description>Delete mstsc.exe from System32</Description>
+    			<Path>cmd.exe /c del "C:\Windows\System32\mstsc.exe"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>14</Order>
+    			<Description>Delete wordpad.exe</Description>
+    			<Path>cmd.exe /c rmdir /s /q "C:\Program Files\Windows NT\Accessories"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>15</Order>
+    			<Description>Delete Windows Fax and Scan shortcut</Description>
+    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Windows Fax and Scan.lnk"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>16</Order>
+    			<Description>Delete Remote Desktop Connection shortcut</Description>
+    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Remote Desktop Connection.lnk"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>17</Order>
+    			<Description>Delete Snipping Tool shortcut</Description>
+    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Snipping Tool.lnk"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>18</Order>
+    			<Description>Delete Wordpad shortcut</Description>
+    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Wordpad.lnk"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+    			<Order>19</Order>
+    			<Description>Delete charmap.exe shortcut</Description>
+    			<Path>cmd.exe /c rmdir /s /q "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools"</Path>
+				</RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>20</Order>
+          <Description>Remove Edge using EdgeRemover script</Description>
+          <Path>powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "iex &amp;{$(irm https://cdn.jsdelivr.net/gh/he3als/EdgeRemover@main/get.ps1)} -UninstallEdge -RemoveEdgeData"</Path>
+        </RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>21</Order>
+					<Description>Unloads the Default User Registry Hive</Description>
+					<Path>reg.exe unload "HKU\DefaultUser"</Path>
+				</RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>22</Order>
+          <Description>Disable All Network Adapters Temporarily so Windows Doesn't Update During OOBE</Description>
+          <Path>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Disable-NetAdapter -Confirm:$false"</Path>
+        </RunSynchronousCommand>
+			</RunSynchronous>
+		</component>
 		<component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
 			<RunSynchronous>
 				<RunSynchronousCommand wcm:action="add">
@@ -156,23 +320,56 @@
 					<Description>Unloads the Default User Registry Hive</Description>
 					<Path>reg.exe unload "HKU\DefaultUser"</Path>
 				</RunSynchronousCommand>
+        <RunSynchronousCommand wcm:action="add">
+          <Order>23</Order>
+          <Description>Disable All Network Adapters Temporarily so Windows Doesn't Update During OOBE</Description>
+          <Path>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Disable-NetAdapter -Confirm:$false"</Path>
+        </RunSynchronousCommand>
 			</RunSynchronous>
 		</component>
 	</settings>
 	<settings pass="auditSystem"></settings>
 	<settings pass="auditUser"></settings>
 	<settings pass="oobeSystem">
-		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
 			<OOBE>
-				<HideEULAPage>true</HideEULAPage>
-				<HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
-				<HideOnlineAccountScreens>true</HideOnlineAccountScreens>
-				<NetworkLocation>Work</NetworkLocation>
-				<ProtectYourPC>3</ProtectYourPC>
+        <HideEULAPage>true</HideEULAPage>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <NetworkLocation>Work</NetworkLocation>
+        <ProtectYourPC>3</ProtectYourPC>
 			</OOBE>
 			<FirstLogonCommands>
-        <SynchronousCommand wcm:action="add">
+        <SynchronousCommand>
           <Order>1</Order>
+          <CommandLine>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Enable-NetAdapter -Confirm:$false"</CommandLine>
+          <Description>Enables Network Adapters After OOBE Completes</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+          <Order>2</Order>
+          <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
+          <Description>Create Browser_Downloader.bat on Desktop</Description>
+        </SynchronousCommand>
+      </FirstLogonCommands>
+		</component>
+		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<OOBE>
+        <HideEULAPage>true</HideEULAPage>
+        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+        <NetworkLocation>Work</NetworkLocation>
+        <ProtectYourPC>3</ProtectYourPC>
+			</OOBE>
+			<FirstLogonCommands>
+        <SynchronousCommand>
+          <Order>1</Order>
+          <CommandLine>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Enable-NetAdapter -Confirm:$false"</CommandLine>
+          <Description>Enables Network Adapters After OOBE Completes</Description>
+        </SynchronousCommand>
+        <SynchronousCommand wcm:action="add">
+          <Order>2</Order>
           <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
           <Description>Create Browser_Downloader.bat on Desktop</Description>
         </SynchronousCommand>
@@ -480,6 +677,9 @@ foreach ($line in $lines) {
         if ($architecture -eq 'x64') {
             $architecture = 'amd64'
         }
+        elseif ($architecture -eq 'x86') {
+            $architecture = 'x86'
+        }
         Write-Host "Architecture: $architecture"
         break
     }
@@ -496,29 +696,25 @@ Remove-Item -Path "C:\Users\Public\Desktop\Microsoft Edge.lnk" -Recurse -Force -
 Remove-Item -Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Microsoft Edge.lnk" -Recurse -Force -ErrorAction Continue
 Remove-Item -Path "C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe" -Recurse -Force -ErrorAction Continue
 Remove-Item -Path "C:\Windows\SystemApps\Microsoft.MicrosoftEdgeDevToolsClient_8wekyb3d8bbwe" -Recurse -Force -ErrorAction Continue
+
 if ($architecture -eq 'amd64') {
     $folderPath = Get-ChildItem -Path "C:\Windows\WinSxS" -Filter "amd64_microsoft-edge-webview_31bf3856ad364e35*" -Directory | Select-Object -ExpandProperty FullName
-
-    if ($folderPath) {
-        & 'takeown' '/f' $folderPath '/r' 
-        & icacls $folderPath  "/grant" "$($adminGroup.Value):(F)" '/T' '/C' 
-        Remove-Item -Path $folderPath -Recurse -Force 
-    } else {
-        Write-Host "Folder not found."
-    }
 } elseif ($architecture -eq 'arm64') {
     $folderPath = Get-ChildItem -Path "C:\Windows\WinSxS" -Filter "arm64_microsoft-edge-webview_31bf3856ad364e35*" -Directory | Select-Object -ExpandProperty FullName
-
-    if ($folderPath) {
-        & 'takeown' '/f' $folderPath '/r'
-        & icacls $folderPath  "/grant" "$($adminGroup.Value):(F)" '/T' '/C' 
-        Remove-Item -Path $folderPath -Recurse -Force 
-    } else {
-        Write-Host "Folder not found."
-    }
+} elseif ($architecture -eq 'x86') {
+    $folderPath = Get-ChildItem -Path "C:\Windows\WinSxS" -Filter "x86_microsoft-edge-webview_31bf3856ad364e35*" -Directory | Select-Object -ExpandProperty FullName
 } else {
     Write-Host "Unknown architecture: $architecture"
 }
+
+if ($folderPath) {
+    & 'takeown' '/f' $folderPath '/r'
+    & icacls $folderPath  "/grant" "$($adminGroup.Value):(F)" '/T' '/C'
+    Remove-Item -Path $folderPath -Recurse -Force 
+} else {
+    Write-Host "Folder not found."
+}
+
 & 'takeown' '/f' "C:\Windows\System32\Microsoft-Edge-Webview" '/r' 
 & 'icacls' "C:\Windows\System32\Microsoft-Edge-Webview" '/grant' "$($adminGroup.Value):(F)" '/T' '/C' 
 Remove-Item -Path "C:\Windows\System32\Microsoft-Edge-Webview" -Recurse -Force
