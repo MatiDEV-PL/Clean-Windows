@@ -7,19 +7,6 @@ $also_remove_webview = 0
 $host.ui.RawUI.WindowTitle = 'Edge Removal'
 $remove_win32 = @("Microsoft Edge","Microsoft Edge Update"); $remove_appx = @("MicrosoftEdge"); $skip = @() # @("DevTools")
 
-## functions to get downloaded browsers
-function global:firefox { $url = 'https://download.mozilla.org/?product=firefox-stub'
-  $setup = "$((new-object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path)\Firefox Installer.exe"
-  write-host $url; Invoke-WebRequest $url -OutFile $setup; start $setup
-}
-function global:edge { $url = 'https://go.microsoft.com/fwlink/?linkid=2108834&Channel=Stable&language=en'
-  $setup = "$((new-object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path)\MicrosoftEdgeSetup.exe"
-  write-host $url; Invoke-WebRequest $url -OutFile $setup; prepare_edge; start $setup
-}
-function global:chrome { $url = 'http://dl.google.com/edgedl/chrome/install/GoogleChromeStandaloneEnterprise64.msi'
-  $setup = "$((new-object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path)\GoogleChromeStandaloneEnterprise64.msi"
-  write-host $url; Invoke-WebRequest $url -OutFile $setup; start $setup
-}
 ## helper for set-itemproperty remove-itemproperty new-item remove-item with auto test-path
 function global:sp_test_path { if (test-path $args[0]) {Microsoft.PowerShell.Management\Set-ItemProperty @args} else {
   Microsoft.PowerShell.Management\New-Item $args[0] -force -ea 0 >''; Microsoft.PowerShell.Management\Set-ItemProperty @args} }
@@ -27,30 +14,6 @@ function global:rp_test_path { if (test-path $args[0]) {Microsoft.PowerShell.Man
 function global:ni_test_path { if (-not (test-path $args[0])) {Microsoft.PowerShell.Management\New-Item @args} }
 function global:ri_test_path { if (test-path $args[0]) {Microsoft.PowerShell.Management\Remove-Item @args} }
 foreach ($f in 'sp','rp','ni','ri') {set-alias -Name $f -Value "${f}_test_path" -Scope Local -Option AllScope -force -ea 0}
-## helper for edge reinstall - remove bundled OpenWebSearch redirector and edgeupdate policies
-function global:prepare_edge {
-  foreach ($f in 'ni','ri','sp','rp') {set-alias -Name $f -Value "${f}_test_path" -Scope Local -Option AllScope -force -ea 0}
-  $MS=($env:ProgramFiles,${env:ProgramFiles(x86)})[[Environment]::Is64BitOperatingSystem]+'\Microsoft\Edge\Application\msedge.exe'
-  ri "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe" -recurse -force -ea 0
-  ri "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe" -recurse -force -ea 0
-  ri 'Registry::HKEY_Users\S-1-5-21*\Software\Classes\microsoft-edge' -recurse -force -ea 0
-  ri 'Registry::HKEY_Users\S-1-5-21*\Software\Classes\MSEdgeHTM' -recurse -force -ea 0
-  ni "HKLM:\SOFTWARE\Classes\microsoft-edge\shell\open\command" -force -ea 0 >''
-  sp "HKLM:\SOFTWARE\Classes\microsoft-edge\shell\open\command" '(Default)' "`"$MS`" --single-argument %%1" -force -ea 0 
-  ni "HKLM:\SOFTWARE\Classes\MSEdgeHTM\shell\open\command" -force -ea 0 >''
-  sp "HKLM:\SOFTWARE\Classes\MSEdgeHTM\shell\open\command" '(Default)' "`"$MS`" --single-argument %%1" -force -ea 0
-  foreach ($p in 'HKLM:\SOFTWARE\Policies','HKLM:\SOFTWARE','HKLM:\SOFTWARE\WOW6432Node') {
-    rp "$p\Microsoft\EdgeUpdate" 'InstallDefault' -force -ea 0
-    rp "$p\Microsoft\EdgeUpdate" 'Install{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}' -force -ea 0
-    rp "$p\Microsoft\EdgeUpdate" 'Install{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}' -force -ea 0
-  }
-  $edgeupdate='Microsoft\EdgeUpdate\Clients\{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}'
-  $webvupdate='Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
-  $on_actions='on-os-upgrade','on-logon','on-logon-autolaunch','on-logon-startup-boost'
-  foreach ($p in 'HKLM:\SOFTWARE','HKLM:\SOFTWARE\Wow6432Node') { foreach ($launch in $on_actions) {
-    ri "$p\$edgeupdate\Commands\$launch" -force -ea 0; ri "$p\$webvupdate\Commands\$launch" -force -ea 0
-  }}
-}
 
 ## 2 enable admin privileges
 $D1=[uri].module.gettype('System.Diagnostics.Process')."GetM`ethods"(42) |where {$_.Name -eq 'SetPrivilege'} #`:no-ev-warn
@@ -215,14 +178,3 @@ $@
 ## 8 done
 $done = gp 'Registry::HKEY_Users\S-1-5-21*\Volatile*' Edge_Removal -ea 0; if ($done) {rp $done.PSPath Edge_Removal -force -ea 0}
 if ((get-process -name 'explorer' -ea 0) -eq $null) {start explorer}
-
-## 9 bonus enter into powershell console: firefox / edge / to install a browser / reinstall edge or after removal
-${.} = [char]27; $firefox = "${.}[38;2;255;165;0m firefox"; $edge = "${.}[94m edge${.}[97m";
-write-host "`n${.}[40;32m EDGE REMOVED! ${.}[97m -GET-ANOTHER-BROWSER? ENTER:$firefox , chrome ${.}[97m -REINSTALL? ENTER:$edge"
-
-
-## 0 ask to run script as admin
-'@.replace("$@","'@").replace("@$","@'") -force -ea 0; $code='gp ''Registry::HKEY_Users\S-1-5-21*\Volatile*'' Edge_Removal -ea 0'
-start powershell -args "-nop -noe -c & {iex(($code)[0].Edge_Removal)}" -verb runas
-$_Press_Enter
-#::
