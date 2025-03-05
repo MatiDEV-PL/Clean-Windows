@@ -1485,7 +1485,7 @@ echo [4]  Google Chrome
 echo [5]  Opera
 echo [6]  DuckDuckGo 
 echo [7]  Librewolf
-echo [31m[8]  Exit[0m
+echo [8]  Exit
 echo.
 set /p choice=Enter your choice (1-8): 
 
