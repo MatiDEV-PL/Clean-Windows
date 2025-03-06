@@ -14,7 +14,7 @@ By default, almost everything should be removed. Available programs are shown in
 # Removing Edge
 If Edge is still present for any reason (thanks, Microsoft), run the following command in PowerShell.
   ```powershell
-  iex "&{$(irm https://cdn.jsdelivr.net/gh/he3als/EdgeRemover@main/get.ps1)} -UninstallEdge -RemoveEdgeData -InstallWebView"
+  iex "&{$(irm https://cdn.jsdelivr.net/gh/he3als/EdgeRemover@main/get.ps1)} -UninstallEdge -RemoveEdgeData"
   ```
 
 # Tutorials:
