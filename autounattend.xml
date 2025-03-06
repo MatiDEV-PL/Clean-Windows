@@ -97,9 +97,7 @@
                 <RunSynchronousCommand wcm:action="add">
                     <Order>1</Order>
                     <Description>Extracts and Executes Scripts in this XML File</Description>
-                    <Path>
-                        powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb
-                        -ArgumentList $xml;"
+                    <Path>powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb -ArgumentList $xml;"
                     </Path>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
@@ -125,10 +123,7 @@
                 <RunSynchronousCommand wcm:action="add">
                     <Order>6</Order>
                     <Description>Run Chris Titus WinUtil Tweaks</Description>
-                    <Path>
-                        cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log"
-                        2&gt;&amp;1"
-                    </Path>
+                    <Path>cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log" 2&gt;&amp;1"</Path>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>7</Order>
@@ -212,10 +207,7 @@
                 <RunSynchronousCommand wcm:action="add">
                     <Order>1</Order>
                     <Description>Extracts and Executes Scripts in this XML File</Description>
-                    <Path>
-                        powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb
-                        -ArgumentList $xml;"
-                    </Path>
+                    <Path>powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb -ArgumentList $xml;"</Path>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>2</Order>
@@ -240,10 +232,7 @@
                 <RunSynchronousCommand wcm:action="add">
                     <Order>6</Order>
                     <Description>Run Chris Titus WinUtil Tweaks</Description>
-                    <Path>
-                        cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log"
-                        2&gt;&amp;1"
-                    </Path>
+                    <Path>cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log" 2&gt;&amp;1"</Path>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>7</Order>
