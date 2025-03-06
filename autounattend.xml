@@ -1,383 +1,398 @@
 <?xml version="1.0" encoding="utf-8"?>
-<unattend
-	xmlns="urn:schemas-microsoft-com:unattend"
-	xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
-	<settings pass="offlineServicing"></settings>
-	<settings pass="windowsPE">
-		<component name="Microsoft-Windows-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-			<UserData>
-				<ProductKey>
-					<Key>00000-00000-00000-00000-00000</Key>
-				</ProductKey>
-        <AcceptEula>true</AcceptEula>
-			</UserData>
-			<RunSynchronous>
-        <!--Prevents auto detection of Windows Edition and forces Windows Setup to show all available Editions of Windows during setup.-->
-        <RunSynchronousCommand wcm:action="add">
-          <Order>1</Order>
-          <Path>cmd.exe /c del /f /q X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>2</Order>
-          <Path>cmd.exe /c echo [Channel] > X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>3</Order>
-          <Path>cmd.exe /c echo _Default >> X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>4</Order>
-          <Path>cmd.exe /c echo [VL] >> X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>5</Order>
-          <Path>cmd.exe /c echo 0 >> X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-			</RunSynchronous>
-		</component>
-		<component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-			<UserData>
-				<ProductKey>
-					<Key>00000-00000-00000-00000-00000</Key>
-				</ProductKey>
-        <AcceptEula>true</AcceptEula>
-			</UserData>
-			<RunSynchronous>
-				<!--Bypass Windows 11 System Requirements-->
-				<RunSynchronousCommand wcm:action="add">
-					<Order>1</Order>
-					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassTPMCheck /t REG_DWORD /d 1 /f</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>2</Order>
-					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassSecureBootCheck /t REG_DWORD /d 1 /f</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>3</Order>
-					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassStorageCheck /t REG_DWORD /d 1 /f</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>4</Order>
-					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassCPUCheck /t REG_DWORD /d 1 /f</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>5</Order>
-					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassRAMCheck /t REG_DWORD /d 1 /f</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>6</Order>
-					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassDiskCheck /t REG_DWORD /d 1 /f</Path>
-				</RunSynchronousCommand>
-        <!--Prevents auto detection of Windows Edition and forces Windows Setup to show all available Editions of Windows during setup.-->
-        <RunSynchronousCommand wcm:action="add">
-          <Order>7</Order>
-          <Path>cmd.exe /c del /f /q X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>8</Order>
-          <Path>cmd.exe /c echo [Channel] > X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>9</Order>
-          <Path>cmd.exe /c echo _Default >> X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>10</Order>
-          <Path>cmd.exe /c echo [VL] >> X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>11</Order>
-          <Path>cmd.exe /c echo 0 >> X:\Sources\ei.cfg</Path>
-        </RunSynchronousCommand>
-			</RunSynchronous>
-		</component>
-	</settings>
-	<settings pass="generalize"></settings>
-	<settings pass="specialize">
-		<component name="Microsoft-Windows-Deployment" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-			<RunSynchronous>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>1</Order>
-					<Description>Extracts and Executes Scripts in this XML File</Description>
-					<Path>powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb -ArgumentList $xml;"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>2</Order>
-					<Description>Loads the Default User Registry Hive so Changes Can be Made to It</Description>
-					<Path>reg.exe load "HKU\DefaultUser" "C:\Users\Default\NTUSER.DAT"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>3</Order>
-					<Description>Executes the remove-packages Powershell Script</Description>
-					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-packages.ps1' -Raw | Invoke-Expression;"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>4</Order>
-					<Description>Executes the remove-caps Powershell Script</Description>
-					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-caps.ps1' -Raw | Invoke-Expression;"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>5</Order>
-					<Description>Executes the remove-features Powershell Script</Description>
-					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-features.ps1' -Raw | Invoke-Expression;"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>6</Order>
-					<Description>Run Chris Titus WinUtil Tweaks</Description>
-					<Path>cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log" 2&gt;&amp;1"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>7</Order>
-					<Description>Executes the HKLM Registry Entries Script</Description>
-					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\localmachine.cmd &gt;&gt;"C:\Windows\Setup\Scripts\localmachine.log" 2&gt;&amp;1"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>8</Order>
-					<Description>Registry Entry to Execute the HKCU Registry Entry Script the First Time a New User Logs In</Description>
-					<Path>reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Runonce" /v "currentuser" /t REG_SZ /d "C:\Windows\Setup\Scripts\currentuser.cmd" /f</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>9</Order>
-					<Description>Registry Entry to Execute the HKU\DefaultUser Registry Entries Script</Description>
-					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\defaultuser.cmd &gt;&gt;"C:\Windows\Setup\Scripts\defaultuser.log" 2&gt;&amp;1"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>10</Order>
-					<Description>Executes the EdgeRemoval batch file</Description>
-					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\edgeremoval.bat &gt;&gt;"C:\Windows\Setup\Scripts\edgeremoval.log" 2&gt;&amp;1"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>11</Order>
-    			<Description>Delete WFS.exe from System32</Description>
-    			<Path>cmd.exe /c del "C:\Windows\System32\WFS.exe"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>12</Order>
-    			<Description>Delete SnippingTool.exe from System32</Description>
-    			<Path>cmd.exe /c del "C:\Windows\System32\SnippingTool.exe"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>13</Order>
-    			<Description>Delete mstsc.exe from System32</Description>
-    			<Path>cmd.exe /c del "C:\Windows\System32\mstsc.exe"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>14</Order>
-    			<Description>Delete wordpad.exe</Description>
-    			<Path>cmd.exe /c rmdir /s /q "C:\Program Files\Windows NT\Accessories"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>15</Order>
-    			<Description>Delete Windows Fax and Scan shortcut</Description>
-    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Windows Fax and Scan.lnk"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>16</Order>
-    			<Description>Delete Remote Desktop Connection shortcut</Description>
-    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Remote Desktop Connection.lnk"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>17</Order>
-    			<Description>Delete Snipping Tool shortcut</Description>
-    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Snipping Tool.lnk"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>18</Order>
-    			<Description>Delete Wordpad shortcut</Description>
-    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Wordpad.lnk"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>19</Order>
-    			<Description>Delete charmap.exe shortcut</Description>
-    			<Path>cmd.exe /c rmdir /s /q "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools"</Path>
-				</RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>20</Order>
-          <Description>Remove Edge using EdgeRemover script</Description>
-          <Path>powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "iex &amp;{$(irm https://cdn.jsdelivr.net/gh/he3als/EdgeRemover@main/get.ps1)} -UninstallEdge -RemoveEdgeData"</Path>
-        </RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>21</Order>
-					<Description>Unloads the Default User Registry Hive</Description>
-					<Path>reg.exe unload "HKU\DefaultUser"</Path>
-				</RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>22</Order>
-          <Description>Disable All Network Adapters Temporarily so Windows Doesn't Update During OOBE</Description>
-          <Path>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Disable-NetAdapter -Confirm:$false"</Path>
-        </RunSynchronousCommand>
-			</RunSynchronous>
-		</component>
-		<component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-			<RunSynchronous>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>1</Order>
-					<Description>Extracts and Executes Scripts in this XML File</Description>
-					<Path>powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb -ArgumentList $xml;"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>2</Order>
-					<Description>Loads the Default User Registry Hive so Changes Can be Made to It</Description>
-					<Path>reg.exe load "HKU\DefaultUser" "C:\Users\Default\NTUSER.DAT"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>3</Order>
-					<Description>Executes the remove-packages Powershell Script</Description>
-					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-packages.ps1' -Raw | Invoke-Expression;"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>4</Order>
-					<Description>Executes the remove-caps Powershell Script</Description>
-					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-caps.ps1' -Raw | Invoke-Expression;"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>5</Order>
-					<Description>Executes the remove-features Powershell Script</Description>
-					<Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-features.ps1' -Raw | Invoke-Expression;"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>6</Order>
-					<Description>Run Chris Titus WinUtil Tweaks</Description>
-					<Path>cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log" 2&gt;&amp;1"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>7</Order>
-					<Description>Executes the HKLM Registry Entries Script</Description>
-					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\localmachine.cmd &gt;&gt;"C:\Windows\Setup\Scripts\localmachine.log" 2&gt;&amp;1"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>8</Order>
-					<Description>Registry Entry to Execute the HKCU Registry Entry Script the First Time a New User Logs In</Description>
-					<Path>reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Runonce" /v "currentuser" /t REG_SZ /d "C:\Windows\Setup\Scripts\currentuser.cmd" /f</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>9</Order>
-					<Description>Registry Entry to Execute the HKU\DefaultUser Registry Entries Script</Description>
-					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\defaultuser.cmd &gt;&gt;"C:\Windows\Setup\Scripts\defaultuser.log" 2&gt;&amp;1"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>10</Order>
-					<Description>Executes the EdgeRemoval batch file</Description>
-					<Path>cmd.exe /c "C:\Windows\Setup\Scripts\edgeremoval.bat &gt;&gt;"C:\Windows\Setup\Scripts\edgeremoval.log" 2&gt;&amp;1"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>11</Order>
-    			<Description>Delete WFS.exe from System32</Description>
-    			<Path>cmd.exe /c del "C:\Windows\System32\WFS.exe"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>12</Order>
-    			<Description>Delete SnippingTool.exe from System32</Description>
-    			<Path>cmd.exe /c del "C:\Windows\System32\SnippingTool.exe"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>13</Order>
-    			<Description>Delete mstsc.exe from System32</Description>
-    			<Path>cmd.exe /c del "C:\Windows\System32\mstsc.exe"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>14</Order>
-    			<Description>Delete wordpad.exe</Description>
-    			<Path>cmd.exe /c rmdir /s /q "C:\Program Files\Windows NT\Accessories"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>15</Order>
-    			<Description>Delete Windows Fax and Scan shortcut</Description>
-    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Windows Fax and Scan.lnk"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>16</Order>
-    			<Description>Delete Remote Desktop Connection shortcut</Description>
-    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Remote Desktop Connection.lnk"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>17</Order>
-    			<Description>Delete Snipping Tool shortcut</Description>
-    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Snipping Tool.lnk"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>18</Order>
-    			<Description>Delete Wordpad shortcut</Description>
-    			<Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Wordpad.lnk"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-    			<Order>19</Order>
-    			<Description>Delete charmap.exe shortcut</Description>
-    			<Path>cmd.exe /c rmdir /s /q "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools"</Path>
-				</RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-					<Order>20</Order>
-					<Description>Download Remove-NoTerm.exe</Description>
-					<Path>powershell.exe -NoProfile -Command "Invoke-WebRequest -Uri 'https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-NoTerm.exe?raw=true' -OutFile '%TEMP%\Remove-NoTerm.exe'"</Path>
-				</RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>21</Order>
-					<Description>Install Remove-NoTerm</Description>
-					<Path>cmd.exe /c "%TEMP%\Remove-NoTerm.exe /silent /install"</Path>
-        </RunSynchronousCommand>
-				<RunSynchronousCommand wcm:action="add">
-					<Order>22</Order>
-					<Description>Unloads the Default User Registry Hive</Description>
-					<Path>reg.exe unload "HKU\DefaultUser"</Path>
-				</RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>23</Order>
-          <Description>Disable All Network Adapters Temporarily so Windows Doesn't Update During OOBE</Description>
-          <Path>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Disable-NetAdapter -Confirm:$false"</Path>
-        </RunSynchronousCommand>
-			</RunSynchronous>
-		</component>
-	</settings>
-	<settings pass="auditSystem"></settings>
-	<settings pass="auditUser"></settings>
-	<settings pass="oobeSystem">
-		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-			<OOBE>
-        <HideEULAPage>true</HideEULAPage>
-        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
-        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
-        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
-        <NetworkLocation>Work</NetworkLocation>
-        <ProtectYourPC>3</ProtectYourPC>
-			</OOBE>
-			<FirstLogonCommands>
-        <SynchronousCommand>
-          <Order>1</Order>
-          <CommandLine>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Enable-NetAdapter -Confirm:$false"</CommandLine>
-          <Description>Enables Network Adapters After OOBE Completes</Description>
-        </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
-          <Order>2</Order>
-          <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
-          <Description>Create Browser_Downloader.bat on Desktop</Description>
-        </SynchronousCommand>
-      </FirstLogonCommands>
-		</component>
-		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
-			<OOBE>
-        <HideEULAPage>true</HideEULAPage>
-        <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
-        <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
-        <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
-        <NetworkLocation>Work</NetworkLocation>
-        <ProtectYourPC>3</ProtectYourPC>
-			</OOBE>
-			<FirstLogonCommands>
-        <SynchronousCommand>
-          <Order>1</Order>
-          <CommandLine>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Enable-NetAdapter -Confirm:$false"</CommandLine>
-          <Description>Enables Network Adapters After OOBE Completes</Description>
-        </SynchronousCommand>
-        <SynchronousCommand wcm:action="add">
-          <Order>2</Order>
-          <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
-          <Description>Create Browser_Downloader.bat on Desktop</Description>
-        </SynchronousCommand>
-      </FirstLogonCommands>
-		</component>
-	</settings>
-  <Extensions>
-	<ExtractScript>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+    <settings pass="offlineServicing"></settings>
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <UserData>
+                <ProductKey>
+                    <Key>00000-00000-00000-00000-00000</Key>
+                </ProductKey>
+                <AcceptEula>true</AcceptEula>
+            </UserData>
+            <RunSynchronous>
+                <!--Prevents auto detection of Windows Edition and forces Windows Setup to show all available Editions of Windows during setup.-->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Path>cmd.exe /c del /f /q X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Path>cmd.exe /c echo [Channel] > X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <Path>cmd.exe /c echo _Default >> X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <Path>cmd.exe /c echo [VL] >> X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>5</Order>
+                    <Path>cmd.exe /c echo 0 >> X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+        </component>
+        <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <UserData>
+                <ProductKey>
+                    <Key>00000-00000-00000-00000-00000</Key>
+                </ProductKey>
+                <AcceptEula>true</AcceptEula>
+            </UserData>
+            <RunSynchronous>
+                <!--Bypass Windows 11 System Requirements-->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassTPMCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassSecureBootCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassStorageCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassCPUCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>5</Order>
+                    <Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassRAMCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>6</Order>
+                    <Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassDiskCheck /t REG_DWORD /d 1 /f</Path>
+                </RunSynchronousCommand>
+                <!--Prevents auto detection of Windows Edition and forces Windows Setup to show all available Editions of Windows during setup.-->
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>7</Order>
+                    <Path>cmd.exe /c del /f /q X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>8</Order>
+                    <Path>cmd.exe /c echo [Channel] > X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>9</Order>
+                    <Path>cmd.exe /c echo _Default >> X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>10</Order>
+                    <Path>cmd.exe /c echo [VL] >> X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>11</Order>
+                    <Path>cmd.exe /c echo 0 >> X:\Sources\ei.cfg</Path>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+        </component>
+    </settings>
+    <settings pass="generalize"></settings>
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <RunSynchronous>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Description>Extracts and Executes Scripts in this XML File</Description>
+                    <Path>
+                        powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb
+                        -ArgumentList $xml;"
+                    </Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Description>Loads the Default User Registry Hive so Changes Can be Made to It</Description>
+                    <Path>reg.exe load "HKU\DefaultUser" "C:\Users\Default\NTUSER.DAT"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <Description>Executes the remove-packages Powershell Script</Description>
+                    <Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-packages.ps1' -Raw | Invoke-Expression;"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <Description>Executes the remove-caps Powershell Script</Description>
+                    <Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-caps.ps1' -Raw | Invoke-Expression;"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>5</Order>
+                    <Description>Executes the remove-features Powershell Script</Description>
+                    <Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-features.ps1' -Raw | Invoke-Expression;"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>6</Order>
+                    <Description>Run Chris Titus WinUtil Tweaks</Description>
+                    <Path>
+                        cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log"
+                        2&gt;&amp;1"
+                    </Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>7</Order>
+                    <Description>Executes the HKLM Registry Entries Script</Description>
+                    <Path>cmd.exe /c "C:\Windows\Setup\Scripts\localmachine.cmd &gt;&gt;"C:\Windows\Setup\Scripts\localmachine.log" 2&gt;&amp;1"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>8</Order>
+                    <Description>Registry Entry to Execute the HKCU Registry Entry Script the First Time a New User Logs In</Description>
+                    <Path>reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Runonce" /v "currentuser" /t REG_SZ /d "C:\Windows\Setup\Scripts\currentuser.cmd" /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>9</Order>
+                    <Description>Registry Entry to Execute the HKU\DefaultUser Registry Entries Script</Description>
+                    <Path>cmd.exe /c "C:\Windows\Setup\Scripts\defaultuser.cmd &gt;&gt;"C:\Windows\Setup\Scripts\defaultuser.log" 2&gt;&amp;1"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>10</Order>
+                    <Description>Executes the EdgeRemoval batch file</Description>
+                    <Path>cmd.exe /c "C:\Windows\Setup\Scripts\edgeremoval.bat &gt;&gt;"C:\Windows\Setup\Scripts\edgeremoval.log" 2&gt;&amp;1"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>11</Order>
+                    <Description>Delete WFS.exe from System32</Description>
+                    <Path>cmd.exe /c del "C:\Windows\System32\WFS.exe"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>12</Order>
+                    <Description>Delete SnippingTool.exe from System32</Description>
+                    <Path>cmd.exe /c del "C:\Windows\System32\SnippingTool.exe"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>13</Order>
+                    <Description>Delete mstsc.exe from System32</Description>
+                    <Path>cmd.exe /c del "C:\Windows\System32\mstsc.exe"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>14</Order>
+                    <Description>Delete wordpad.exe</Description>
+                    <Path>cmd.exe /c rmdir /s /q "C:\Program Files\Windows NT\Accessories"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>15</Order>
+                    <Description>Delete Windows Fax and Scan shortcut</Description>
+                    <Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Windows Fax and Scan.lnk"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>16</Order>
+                    <Description>Delete Remote Desktop Connection shortcut</Description>
+                    <Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Remote Desktop Connection.lnk"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>17</Order>
+                    <Description>Delete Snipping Tool shortcut</Description>
+                    <Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Snipping Tool.lnk"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>18</Order>
+                    <Description>Delete Wordpad shortcut</Description>
+                    <Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Wordpad.lnk"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>19</Order>
+                    <Description>Delete charmap.exe shortcut</Description>
+                    <Path>cmd.exe /c rmdir /s /q "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>20</Order>
+                    <Description>Unloads the Default User Registry Hive</Description>
+                    <Path>reg.exe unload "HKU\DefaultUser"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>21</Order>
+                    <Description>Disable All Network Adapters Temporarily so Windows Doesn't Update During OOBE</Description>
+                    <Path>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Disable-NetAdapter -Confirm:$false"</Path>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+        </component>
+        <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <RunSynchronous>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>1</Order>
+                    <Description>Extracts and Executes Scripts in this XML File</Description>
+                    <Path>
+                        powershell.exe -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb
+                        -ArgumentList $xml;"
+                    </Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Description>Loads the Default User Registry Hive so Changes Can be Made to It</Description>
+                    <Path>reg.exe load "HKU\DefaultUser" "C:\Users\Default\NTUSER.DAT"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <Description>Executes the remove-packages Powershell Script</Description>
+                    <Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-packages.ps1' -Raw | Invoke-Expression;"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <Description>Executes the remove-caps Powershell Script</Description>
+                    <Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-caps.ps1' -Raw | Invoke-Expression;"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>5</Order>
+                    <Description>Executes the remove-features Powershell Script</Description>
+                    <Path>powershell.exe -NoProfile -Command "Get-Content -LiteralPath '%TEMP%\remove-features.ps1' -Raw | Invoke-Expression;"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>6</Order>
+                    <Description>Run Chris Titus WinUtil Tweaks</Description>
+                    <Path>
+                        cmd.exe /c "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\wintweaks.ps1' -Raw | Invoke-Expression;" &gt;&gt;"C:\Windows\Setup\Scripts\wintweaks.log"
+                        2&gt;&amp;1"
+                    </Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>7</Order>
+                    <Description>Executes the HKLM Registry Entries Script</Description>
+                    <Path>cmd.exe /c "C:\Windows\Setup\Scripts\localmachine.cmd &gt;&gt;"C:\Windows\Setup\Scripts\localmachine.log" 2&gt;&amp;1"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>8</Order>
+                    <Description>Registry Entry to Execute the HKCU Registry Entry Script the First Time a New User Logs In</Description>
+                    <Path>reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Runonce" /v "currentuser" /t REG_SZ /d "C:\Windows\Setup\Scripts\currentuser.cmd" /f</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>9</Order>
+                    <Description>Registry Entry to Execute the HKU\DefaultUser Registry Entries Script</Description>
+                    <Path>cmd.exe /c "C:\Windows\Setup\Scripts\defaultuser.cmd &gt;&gt;"C:\Windows\Setup\Scripts\defaultuser.log" 2&gt;&amp;1"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>10</Order>
+                    <Description>Executes the EdgeRemoval batch file</Description>
+                    <Path>cmd.exe /c "C:\Windows\Setup\Scripts\edgeremoval.bat &gt;&gt;"C:\Windows\Setup\Scripts\edgeremoval.log" 2&gt;&amp;1"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>11</Order>
+                    <Description>Delete WFS.exe from System32</Description>
+                    <Path>cmd.exe /c del "C:\Windows\System32\WFS.exe"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>12</Order>
+                    <Description>Delete SnippingTool.exe from System32</Description>
+                    <Path>cmd.exe /c del "C:\Windows\System32\SnippingTool.exe"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>13</Order>
+                    <Description>Delete mstsc.exe from System32</Description>
+                    <Path>cmd.exe /c del "C:\Windows\System32\mstsc.exe"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>14</Order>
+                    <Description>Delete wordpad.exe</Description>
+                    <Path>cmd.exe /c rmdir /s /q "C:\Program Files\Windows NT\Accessories"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>15</Order>
+                    <Description>Delete Windows Fax and Scan shortcut</Description>
+                    <Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Windows Fax and Scan.lnk"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>16</Order>
+                    <Description>Delete Remote Desktop Connection shortcut</Description>
+                    <Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Remote Desktop Connection.lnk"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>17</Order>
+                    <Description>Delete Snipping Tool shortcut</Description>
+                    <Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Snipping Tool.lnk"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>18</Order>
+                    <Description>Delete Wordpad shortcut</Description>
+                    <Path>cmd.exe /c del "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\Wordpad.lnk"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>19</Order>
+                    <Description>Delete charmap.exe shortcut</Description>
+                    <Path>cmd.exe /c rmdir /s /q "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>20</Order>
+                    <Description>Download Remove-NoTerm.exe</Description>
+                    <Path>powershell.exe -NoProfile -Command "Invoke-WebRequest -Uri 'https://github.com/ShadowWhisperer/Remove-MS-Edge/blob/main/Remove-NoTerm.exe?raw=true' -OutFile '%TEMP%\Remove-NoTerm.exe'"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>21</Order>
+                    <Description>Install Remove-NoTerm</Description>
+                    <Path>cmd.exe /c "%TEMP%\Remove-NoTerm.exe /silent /install"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>22</Order>
+                    <Description>Unloads the Default User Registry Hive</Description>
+                    <Path>reg.exe unload "HKU\DefaultUser"</Path>
+                </RunSynchronousCommand>
+                <RunSynchronousCommand wcm:action="add">
+                    <Order>23</Order>
+                    <Description>Disable All Network Adapters Temporarily so Windows Doesn't Update During OOBE</Description>
+                    <Path>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Disable-NetAdapter -Confirm:$false"</Path>
+                </RunSynchronousCommand>
+            </RunSynchronous>
+        </component>
+    </settings>
+    <settings pass="auditSystem"></settings>
+    <settings pass="auditUser"></settings>
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="x86" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <OOBE>
+                <HideEULAPage>true</HideEULAPage>
+                <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+                <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+                <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+                <NetworkLocation>Work</NetworkLocation>
+                <ProtectYourPC>3</ProtectYourPC>
+            </OOBE>
+            <FirstLogonCommands>
+                <SynchronousCommand>
+                    <Order>1</Order>
+                    <CommandLine>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Enable-NetAdapter -Confirm:$false"</CommandLine>
+                    <Description>Enables Network Adapters After OOBE Completes</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
+                    <Description>Create Browser_Downloader.bat on Desktop</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <CommandLine>powershell.exe -ExecutionPolicy Bypass -File C:\Windows\Setup\Scripts\RemoveEdge.ps1 -UninstallEdge -RemoveEdgeData</CommandLine>
+                    <Description>Removes Microsoft Edge</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>4</Order>
+                    <Description>Delete Edge shortcut</Description>
+                    <CommandLine>cmd.exe /c del "%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Microsoft Edge.lnk"</CommandLine>
+                </SynchronousCommand>
+            </FirstLogonCommands>
+        </component>
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+            <OOBE>
+                <HideEULAPage>true</HideEULAPage>
+                <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+                <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+                <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+                <NetworkLocation>Work</NetworkLocation>
+                <ProtectYourPC>3</ProtectYourPC>
+            </OOBE>
+            <FirstLogonCommands>
+                <SynchronousCommand>
+                    <Order>1</Order>
+                    <CommandLine>powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command "Get-NetAdapter | Enable-NetAdapter -Confirm:$false"</CommandLine>
+                    <Description>Enables Network Adapters After OOBE Completes</Description>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
+                    <Description>Create Browser_Downloader.bat on Desktop</Description>
+                </SynchronousCommand>
+            </FirstLogonCommands>
+        </component>
+    </settings>
+    <Extensions>
+        <ExtractScript>
     param(
       [xml] $Document
     );
@@ -1397,9 +1412,9 @@ reg.exe add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Windows AI" /
 
 :: Restart PC to Apply All Changes
 shutdown /r -t 1
-	</File>
-	<!--Additional Edge Removal Script by Chris Titus & AveYo to Ensure Complete Removal-->
-	<File path="C:\Windows\Setup\Scripts\edgeremoval.bat">
+		</File>
+		<!--Additional Edge Removal Script by Chris Titus & AveYo to Ensure Complete Removal-->
+		<File path="C:\Windows\Setup\Scripts\edgeremoval.bat">
 			<![CDATA[
 @(set "0=%~f0"^)#) & powershell -nop -c iex([io.file]::ReadAllText($env:0)) & exit /b
 #:: made by AveYo source: https://raw.githubusercontent.com/AveYo/fox/main/Edge_Removal.bat
@@ -1637,9 +1652,9 @@ write-host "`n${.}[40;32m EDGE REMOVED! ${.}[97m -GET-ANOTHER-BROWSER? ENTER:$fi
 start powershell -args "-nop -noe -c & {iex(($code)[0].Edge_Removal)}" -verb runas
 $_Press_Enter
 #::]]>
-	</File>
-  <!--Browser Downloader-->
-  <File path="C:\Windows\Setup\Scripts\Browser_Downloader.bat">
+		</File>
+		<!--Browser Downloader-->
+		<File path="C:\Windows\Setup\Scripts\Browser_Downloader.bat">
             <![CDATA[
 @echo off
 title Browser Downloader and Installer
@@ -1841,6 +1856,679 @@ goto menu
 :end
 echo Done.
 pause]]>
-  </File>
+		</File>
+		<!--Edge Removal For Windows 32bit by he3als-->
+		<File path="C:\Windows\Setup\Scripts\RemoveEdge.ps1">
+            <![CDATA[
+#Requires -Version 5.0
+
+<#
+	.SYNOPSIS
+	Uninstalls or reinstalls Microsoft Edge and its related components. Made by @he3als.
+
+	.Description
+	Uninstalls or reinstalls Microsoft Edge and its related components in a non-forceful manner, based upon switches or user choices in a TUI.
+
+	.PARAMETER UninstallEdge
+	Uninstalls Edge, leaving the Edge user data.
+
+	.PARAMETER InstallEdge
+	Installs Edge, leaving the previous Edge user data.
+
+	.PARAMETER InstallWebView
+	Installs Edge WebView2 using the Evergreen installer.
+
+	.PARAMETER RemoveEdgeData
+	Removes all Edge user data. Compatible with -InstallEdge.
+
+	.PARAMETER KeepAppX
+	Doesn't check for and remove the AppX, in case you want to use alternative AppX removal methods. Doesn't work with UninstallEdge.
+
+	.PARAMETER NonInteractive
+	When combined with other parameters, this does not prompt the user for anything.
+
+	.LINK
+	https://github.com/he3als/EdgeRemover
+#>
+
+param (
+	[switch]$UninstallEdge,
+	[switch]$InstallEdge,
+	[switch]$InstallWebView,
+	[switch]$RemoveEdgeData,
+	[switch]$KeepAppX,
+	[switch]$NonInteractive
+)
+
+$version = '1.9.4'
+
+$ProgressPreference = "SilentlyContinue"
+$sys32 = [Environment]::GetFolderPath('System')
+$windir = [Environment]::GetFolderPath('Windows')
+$env:path = "$windir;$sys32;$sys32\Wbem;$sys32\WindowsPowerShell\v1.0;" + $env:path
+$baseKey = "HKLM:\SOFTWARE" + $(if ([Environment]::Is64BitOperatingSystem) { "\WOW6432Node" }) + "\Microsoft"
+$msedgeExe = "$([Environment]::GetFolderPath('ProgramFilesx86'))\Microsoft\Edge\Application\msedge.exe"
+$edgeUWP = "$windir\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe"
+
+if ($NonInteractive -and (!$UninstallEdge -and !$InstallEdge -and !$InstallWebView)) {
+	$NonInteractive = $false
+}
+if ($InstallEdge -and $UninstallEdge) {
+	throw "You can't use both -InstallEdge and -UninstallEdge as arguments."
+}
+
+function Pause ($message = "Press Enter to exit") {
+	if (!$NonInteractive) { $null = Read-Host $message }
+}
+
+enum LogLevel {
+	Success
+	Info
+	Warning
+	Error
+	Critical
+}
+function Write-Status {
+	param (
+		[Parameter(Mandatory=$true)]
+		[ValidateNotNullOrEmpty()]
+		[string]$Text,
+		[LogLevel]$Level = "Info",
+		[switch]$Exit,
+		[string]$ExitString = "Press Enter to exit",
+		[int]$ExitCode = 1 
+	)
+
+	$colour = @(
+		"Green",
+		"White",
+		"Yellow",
+		"Red",
+		"Red"
+	)[$([LogLevel].GetEnumValues().IndexOf($Level))]
+
+	$Text -split "`n" | ForEach-Object {
+		Write-Host "[$($Level.ToString().ToUpper())] $_" -ForegroundColor $colour
+	}
+
+	if ($Exit) {
+		Write-Output ""
+		Pause $ExitString
+		exit $ExitCode
+	}
+}
+
+function InternetCheck {
+	if ($(Test-Connection "microsoft.com" -Count 1 -EA 0; $?) -eq $false) {
+		Write-Status "Failed to ping Microsoft! You must have an internet connection to reinstall Edge and its components." -Level Critical -Exit -ExitCode 404
+	}
+}
+
+function DeleteIfExist($Path) {
+	if (Test-Path $Path) {
+		Remove-Item -Path $Path -Force -Recurse -Confirm:$false
+	}
+}
+
+function Get-MsiexecAppByName {
+	param(
+		[Parameter(Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[string]$Name
+	)
+
+	$uninstallKeyPath = "Microsoft\Windows\CurrentVersion\Uninstall"
+	$uninstallKeys = (Get-ChildItem -Path @(
+		"HKLM:\SOFTWARE\$uninstallKeyPath",
+		"HKLM:\SOFTWARE\WOW6432Node\$uninstallKeyPath",
+		"HKCU:\SOFTWARE\$uninstallKeyPath",
+		"HKCU:\SOFTWARE\WOW6432Node\$uninstallKeyPath"
+	) -EA SilentlyContinue) -match "\{\b[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}\b\}"
+
+	$edges = @()
+	foreach ($key in $uninstallKeys.PSPath) {
+		if (((Get-ItemProperty -Path $key).DisplayName -like "*$Name*") -and ((Get-ItemProperty -Path $key).UninstallString -like "*MsiExec.exe*")) {
+			$edges += Split-Path -Path $key -Leaf
+		}
+	}
+
+	return $edges
+}
+
+# True if it's installed
+function EdgeInstalled {
+	Test-Path $msedgeExe
+}
+
+function KillEdgeProcesses {
+	$ErrorActionPreference = 'SilentlyContinue'
+	foreach ($service in (Get-Service -Name "*edge*" | Where-Object {$_.DisplayName -like "*Microsoft Edge*"}).Name) {
+		Stop-Service -Name $service -Force
+	}
+	foreach (
+		$process in
+		(Get-Process | Where-Object {($_.Path -like "$([Environment]::GetFolderPath('ProgramFilesX86'))\Microsoft\*") -or ($_.Name -like "*msedge*")}).Id
+	) {
+		Stop-Process -Id $process -Force
+	}
+	$ErrorActionPreference = 'Continue'	
+}
+
+function RemoveEdgeChromium([bool]$AlreadyUninstalled) {
+	Write-Status -Text "Trying to find Edge uninstallers..."
+
+	# get Edge MsiExec uninstallers
+	# commonly installed with WinGet (it installs the Enterprise MSI)
+	$msis = Get-MsiexecAppByName -Name "Microsoft Edge"
+
+	# find using common locations - used as a backup
+	function UninstallStringFail {
+		if ($msis.Count -le 0) {
+			Write-Status -Text "Couldn't parse uninstall string for Edge. Trying to find uninstaller manually." -Level Warning
+		}
+
+		$script:edgeUninstallers = @()
+		'LocalApplicationData','ProgramFilesX86','ProgramFiles' | ForEach-Object {
+			$folder = [Environment]::GetFolderPath($_)
+			$script:edgeUninstallers += Get-ChildItem "$folder\Microsoft\Edge*\setup.exe" -Recurse -EA 0 |
+				Where-Object {($_ -like '*Edge\Application*') -or ($_ -like '*SxS\Application*')}
+		}
+	}
+
+	# find using Registry
+	$uninstallKeyPath = "$baseKey\Windows\CurrentVersion\Uninstall\Microsoft Edge"
+	$uninstallString = (Get-ItemProperty -Path $uninstallKeyPath -EA 0).UninstallString
+	if ([string]::IsNullOrEmpty($uninstallString) -and ($msis.Count -le 0)) {
+		$uninstallString = $null
+		UninstallStringFail
+	} else {
+		# split uninstall string for path & args
+		$uninstallPath, $uninstallArgs = $uninstallString -split '"', 3 |
+			Where-Object { $_ } |
+			ForEach-Object { [System.Environment]::ExpandEnvironmentVariables($_.Trim()) }
+
+		# check if fully qualified (should normally be), otherwise it could be null or something in the working dir
+		if (![System.IO.Path]::IsPathRooted($uninstallPath) -or !(Test-Path $uninstallPath -PathType Leaf)) {
+			$uninstallPath = $null
+			UninstallStringFail
+		}
+	}
+
+	# throw if installers aren't found
+	if (($msis.Count -le 0) -and ($script:edgeUninstallers.Count -le 0) -and !$uninstallPath) {
+		$uninstallError = @{
+			Text = "Failed to find uninstaller! " + $(if ($AlreadyUninstalled) {
+				"This likely means Edge is already uninstalled."
+			} else {
+				"The uninstall can't continue. :("
+			})
+			Level = if ($AlreadyUninstalled) { 'Warning' } else { 'Critical' }
+			Exit = $true
+			ExitCode = 2
+		}
+		Write-Status @uninstallError
+	} else {
+		Write-Status "Found Edge uninstallers."
+	}
+
+	# toggles an EU region - this is because anyone in the EEA can uninstall Edge
+	# this key is checked by the Edge uninstaller
+	function ToggleEURegion([bool]$Enable) {
+		$geoKey = "Registry::HKEY_USERS\.DEFAULT\Control Panel\International\Geo"
+
+		# sets Geo to France, which is in the EEA
+		$values = @{
+			"Name" = "FR"
+			"Nation" = "84"
+		}
+		$geoChange = 'EdgeSaved'
+
+		if ($Enable) {
+			$values.GetEnumerator() | ForEach-Object {
+				Rename-ItemProperty -Path $geoKey -Name $_.Key -NewName "$($_.Key)$geoChange" -Force
+				Set-ItemProperty -Path $geoKey -Name $_.Key -Value $_.Value -Force
+			}
+		} else {
+			$values.GetEnumerator() | ForEach-Object {
+				Remove-ItemProperty -Path $geoKey -Name $_.Key -Force -EA 0
+				Rename-ItemProperty -Path $geoKey -Name "$($_.Key)$geoChange" -NewName $_.Key -Force -EA 0
+			}
+		}
+	}
+
+	function ModifyRegionJSON {
+		$cleanup = $false
+		$script:integratedServicesPath = "$sys32\IntegratedServicesRegionPolicySet.json"
+
+		if (Test-Path $integratedServicesPath) {
+			$cleanup = $true
+			try {
+				$admin = [System.Security.Principal.NTAccount]$(New-Object System.Security.Principal.SecurityIdentifier('S-1-5-32-544')).Translate([System.Security.Principal.NTAccount]).Value
+
+				# get perms (normally TrustedInstaller only)
+				$acl = Get-Acl -Path $integratedServicesPath
+				$script:backup = [System.Security.AccessControl.FileSecurity]::new()
+				$script:backup.SetSecurityDescriptorSddlForm($acl.Sddl)
+				# full control
+				$acl.SetOwner($admin)
+				$rule = New-Object System.Security.AccessControl.FileSystemAccessRule($admin, "FullControl", "Allow")
+				$acl.AddAccessRule($rule)
+				# set modified ACL
+				Set-Acl -Path $integratedServicesPath -AclObject $acl
+
+				# modify the stuff
+				$integratedServices = Get-Content $integratedServicesPath | ConvertFrom-Json
+				($integratedServices.policies | Where-Object { ($_.'$comment' -like "*Edge*") -and ($_.'$comment' -like "*uninstall*") }).defaultState = 'enabled'
+				$modifiedJson = $integratedServices | ConvertTo-Json -Depth 100
+
+				$script:backupIntegratedServicesName = "IntegratedServicesRegionPolicySet.json.$([System.IO.Path]::GetRandomFileName())"
+				Rename-Item $integratedServicesPath -NewName $script:backupIntegratedServicesName -Force
+				Set-Content $integratedServicesPath -Value $modifiedJson -Force -Encoding UTF8
+			} catch {
+				Write-Error "Failed to modify region policies. $_"
+			}
+		} else {
+			Write-Status -Text "'$integratedServicesPath' not found." -Level Warning
+		}
+
+		return $cleanup
+	}
+
+
+	# Edge uninstalling logic
+	function UninstallEdge {
+		# MSI packages have to be uninstalled first, otherwise it breaks
+		foreach ($msi in $msis) {
+			Write-Status 'Uninstalling Edge using Windows Installer...'
+			Start-Process -FilePath "msiexec.exe" -ArgumentList "/qn /X$(Split-Path -Path $msi -Leaf) REBOOT=ReallySuppress /norestart" -Wait
+		}
+
+		# uninstall standard Edge installs
+		if ($uninstallPath) {  # found from Registry
+			Start-Process -Wait -FilePath $uninstallPath -ArgumentList "$uninstallArgs --force-uninstall" -WindowStyle Hidden
+		} else {  # found from system files
+			foreach ($setup in $edgeUninstallers) {
+				if (Test-Path $setup) {
+					$sulevel = ('--system-level','--user-level')[$setup -like '*\AppData\Local\*']
+					Start-Process -Wait $setup -ArgumentList "--uninstall --msedge $sulevel --channel=stable --verbose-logging --force-uninstall"
+				}
+			}
+		}
+
+		# return if Edge is installed or not
+		return EdgeInstalled
+	}
+
+	# things that should always be done before uninstall
+	function GlobalRemoveMethods {
+		Write-Status "Using method $method..." -Level Warning
+
+		# delete experiment_control_labels for key that prevents (or prevented) uninstall
+		Remove-ItemProperty -Path "$baseKey\EdgeUpdate\ClientState\{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}" -Name 'experiment_control_labels' -Force -EA 0
+
+		# allow Edge uninstall
+		$devKeyPath = "$baseKey\EdgeUpdateDev"
+		if (!(Test-Path $devKeyPath)) { New-Item -Path $devKeyPath -ItemType "Key" -Force | Out-Null }
+		Set-ItemProperty -Path $devKeyPath -Name "AllowUninstall" -Value "" -Type String -Force
+	
+		Write-Status "Terminating Microsoft Edge processes..."
+		KillEdgeProcesses
+	}
+
+	# go through each uninstall method
+	# yes, i'm aware this seems excessive, but i'm just trying to make sure it works on the most installs possible
+	# it does bloat the script lots though... i'll clean it up in a future release, but for now, i'm just fixing it
+	$fail = $true
+	$method = 1
+	function CleanupMsg { Write-Status "Cleaning up after method $method..." }
+	while ($fail) {
+		switch ($method) {
+			# makes Edge think the old legacy UWP is still installed
+			# seems to fail on some installs?
+			1 {
+				GlobalRemoveMethods
+				if (!(Test-Path "$edgeUWP\MicrosoftEdge.exe")) {
+					New-Item $edgeUWP -ItemType Directory -ErrorVariable cleanup -EA 0 | Out-Null
+					New-Item "$edgeUWP\MicrosoftEdge.exe" -EA 0 | Out-Null
+					$cleanup = $true
+				}
+
+				# attempt uninstall
+				$fail = UninstallEdge
+
+				if ($cleanup) {
+					CleanupMsg
+					Remove-Item $edgeUWP -Force -EA 0 -Recurse
+				}
+			}
+
+			# not having windir defined is a condition to allow uninstall
+			# found in the strings of the setup ^
+			2 {
+				GlobalRemoveMethods
+				$envPath = 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+				try {
+					# delete windir variable temporarily
+					Set-ItemProperty -Path $envPath -Name 'windir' -Value '' -Type ExpandString
+					$env:windir = [System.Environment]::GetEnvironmentVariable('windir', [System.EnvironmentVariableTarget]::Machine)
+
+					# attempt uninstall
+					$fail = UninstallEdge
+				} finally {
+					CleanupMsg
+					# this is the default
+					Set-ItemProperty -Path $envPath -Name 'windir' -Value '%SystemRoot%' -Type ExpandString
+				}
+			}
+
+			# changes region in Registry
+			# currently not known to work, kept for legacy reasons
+			3 {
+				GlobalRemoveMethods
+				ToggleEURegion $true
+
+				$fail = UninstallEdge
+
+				CleanupMsg
+				ToggleEURegion $false
+			}
+
+			# modifies IntegratedServicesRegionPolicySet to add current region to allow list
+			# currently not known to work, kept for legacy reasons
+			4 {
+				GlobalRemoveMethods
+				$cleanup = ModifyRegionJSON
+				
+				# attempt uninstall
+				$fail = UninstallEdge
+
+				# cleanup
+				if ($cleanup) {
+					CleanupMsg
+					Remove-Item $integratedServicesPath -Force
+					Rename-Item "$sys32\$backupIntegratedServicesName" -NewName $integratedServicesPath -Force
+					Set-Acl -Path $integratedServicesPath -AclObject $backup
+				}
+			}
+
+			# everything fails ╰（‵□′）╯
+			default {
+				Write-Status "The uninstall methods failed for the Edge installers found. Nothing else can be done." -Level Critical -Exit -ExitCode 3
+			}
+		}
+
+		$method++
+	}
+	Write-Status "Successfully removed Edge! :)" -Level Success
+
+	# remove old shortcuts
+	"$([Environment]::GetFolderPath('Desktop'))\Microsoft Edge.lnk",
+	"$([Environment]::GetFolderPath('CommonStartMenu'))\Microsoft Edge.lnk" | ForEach-Object { DeleteIfExist $_ }
+
+	# restart explorer if Copilot is enabled - this will hide the Copilot button
+	if ((Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowCopilotButton" -EA 0)."ShowCopilotButton" -eq 1) {
+		Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+	}
+}
+
+function RemoveEdgeAppX {
+	# i'm aware of how this is deprecated
+	# kept for legacy purposes just in case someone's using an older build of Windows
+
+	$SID = (New-Object System.Security.Principal.NTAccount([Environment]::UserName)).Translate([Security.Principal.SecurityIdentifier]).Value
+
+	# remove from Registry
+	$appxStore = '\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore'
+	$pattern = "HKLM:$appxStore\InboxApplications\Microsoft.MicrosoftEdge_*_neutral__8wekyb3d8bbwe"
+	$edgeAppXKey = (Get-Item -Path $pattern).PSChildName
+	if (Test-Path "$pattern") { reg delete "HKLM$appxStore\InboxApplications\$edgeAppXKey" /f | Out-Null }
+
+	# make the Edge AppX able to uninstall and uninstall
+	New-Item -Path "HKLM:$appxStore\EndOfLife\$SID\Microsoft.MicrosoftEdge_8wekyb3d8bbwe" -Force | Out-Null
+	Get-AppxPackage -Name Microsoft.MicrosoftEdge | Remove-AppxPackage | Out-Null
+	Remove-Item -Path "HKLM:$appxStore\EndOfLife\$SID\Microsoft.MicrosoftEdge_8wekyb3d8bbwe" -Force | Out-Null
+}
+
+
+function InstallEdgeChromium {
+	InternetCheck
+
+	$temp = mkdir (Join-Path $([System.IO.Path]::GetTempPath()) $(New-Guid))
+	$msi = "$temp\edge.msi"
+	$msiLog = "$temp\edgeMsi.log"
+	
+	if ([Environment]::Is64BitOperatingSystem) {
+		$arm = ((Get-CimInstance -Class Win32_ComputerSystem).SystemType -match 'ARM64') -or ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64')
+		$archString = ('x64', 'arm64')[$arm]
+	} else {
+		$archString = 'x86'
+	}
+	
+	Write-Status "Requesting from the Microsoft Edge Update API..."
+	try {
+		try {
+			$edgeUpdateApi = (Invoke-WebRequest "https://edgeupdates.microsoft.com/api/products" -UseBasicParsing).Content | ConvertFrom-Json
+		} catch {
+			Write-Status "Failed to request from EdgeUpdate API!
+Error: $_" -Level Critical -Exit -ExitCode 4
+		}
+
+		$edgeItem = ($edgeUpdateApi | ? { $_.Product -eq 'Stable' }).Releases |
+			Where-Object { $_.Platform -eq 'Windows' -and $_.Architecture -eq $archString } |
+			Where-Object { $_.Artifacts.Count -ne 0 } | Select-Object -First 1
+		
+		if ($null -eq $edgeItem) {
+			Write-Status "Failed to parse EdgeUpdate API! No matching artifacts found." -Level Critical -Exit
+		}
+
+		$hashAlg = $edgeItem.Artifacts.HashAlgorithm | % { if ([string]::IsNullOrEmpty($_)) { "SHA256" } else { $_ } }
+		foreach ($var in @{
+			link = $edgeItem.Artifacts.Location
+			hash = $edgeItem.Artifacts.Hash
+			version = $edgeItem.ProductVersion
+			sizeInMb = [math]::round($edgeItem.Artifacts.SizeInBytes/1Mb)
+			released = Get-Date $edgeItem.PublishedTime
+		}.GetEnumerator()) {
+			$val = $var.Value | Select-Object -First 1
+			if ($val.Length -le 0) {
+				Set-Variable -Name $var.Key -Value "Undefined"
+				if ($var.Key -eq 'link') { throw "Failed to parse download link!" }
+			} else {
+				Set-Variable -Name $var.Key -Value $val
+			}
+		}
+	} catch {
+		Write-Status "Failed to parse Microsoft Edge from `"$link`"!
+Error: $_" -Level Critical -Exit -ExitCode 5
+	}
+	Write-Status "Parsed Microsoft Edge Update API!" -Level Success
+	
+	Write-Host "`nDownloading Microsoft Edge:" -ForegroundColor Cyan
+	@(
+		@("Released on: ", $released),
+		@("Version: ", "$version (Stable)"),
+		@("Size: ", "$sizeInMb Mb")
+	) | Foreach-Object {
+		Write-Host " - " -NoNewline -ForegroundColor Magenta
+		Write-Host $_[0] -NoNewline -ForegroundColor Yellow
+		Write-Host $_[1]
+	}
+	
+	Write-Output ""
+	try {
+		if ($null -eq (Get-Command curl.exe -EA 0)) {
+			Write-Status "Couldn't find cURL, using Invoke-WebRequest, which is slower..." -Level Warning
+			Invoke-WebRequest -Uri $link -Output $msi -UseBasicParsing
+		} else {
+			curl.exe -#L "$link" -o "$msi"
+		}
+	} catch {
+		Write-Status "Failed to download Microsoft Edge from `"$link`"!
+Error: $_" -Level Critical -Exit -ExitCode 6
+	}
+	Write-Output ""
+	
+	if ($hash -eq "Undefined") {
+		Write-Status "Not verifying hash as it's undefined, download might have failed." -Level Warning
+	} else {
+		Write-Status "Verifying download by checking its hash..."
+		if ((Get-FileHash -LiteralPath $msi -Algorithm $hashAlg).Hash -eq $hash) {
+			Write-Status "Verified the Microsoft Edge installer!" -Level Success
+		} else {
+			Write-Status "Edge installer hash does not match. The installer might be corrupted. Continuing anyways..." -Level Error
+		}
+	}
+	
+	Write-Status "Installing Microsoft Edge..."
+	Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msi`" /l `"$msiLog`" /quiet" -Wait
+	
+	if (!(Test-Path $msiLog)) {
+		Write-Status "Couldn't find installer log at `"$msiLog`"! This likely means it failed." -Level Critical -Exit -ExitCode 7
+	}
+	
+	Write-Status -Text "Installer log path: `"$msiLog`""
+	if ($null -eq ($(Get-Content $msiLog) -like "*Product: Microsoft Edge -- * completed successfully.*")) {
+		Write-Status "Can't find success string from Edge install log - it seems like the install was a failure." -Level Error -Exit -ExitCode 8
+	}
+
+	Write-Status -Text "Installed Microsoft Edge!" -Level Success
+}
+
+function InstallWebView {
+	InternetCheck
+
+	$dlPath = "$((Join-Path $([System.IO.Path]::GetTempPath()) $(New-Guid)))-webview2.exe"
+	$link = "https://go.microsoft.com/fwlink/p/?LinkId=2124703"
+
+	Write-Status "Downloading Edge WebView..."
+	try {
+		if ($null -eq (Get-Command curl.exe -EA 0)) {
+			Write-Status "Couldn't find cURL, using Invoke-WebRequest, which is slower..." -Level Warning
+			Invoke-WebRequest -Uri $link -Output $dlPath -UseBasicParsing
+		} else {
+			curl.exe -Ls "$link" -o "$dlPath"
+		}
+	} catch {
+		Write-Status "Failed to download Edge WebView from `"$link`"!
+Error: $_" -Level Critical -Exit -ExitCode 9
+	}
+
+	Write-Status "Installing Edge WebView..."
+	Start-Process -FilePath "$dlPath" -ArgumentList "/silent /install" -Wait
+
+	Write-Status "Installed Edge WebView!" -Level Success
+}
+
+# SYSTEM check - using SYSTEM previously caused issues
+if ([Security.Principal.WindowsIdentity]::GetCurrent().User.Value -eq 'S-1-5-18') {
+	Write-Status "This script can't be ran as TrustedInstaller/SYSTEM.
+Please relaunch this script under a regular admin account." -Level Critical -Exit
+} else {
+	if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+		if ($PSBoundParameters.Count -le 0 -and !$args) {
+				Start-Process cmd "/c PowerShell -NoP -EP Bypass -File `"$PSCommandPath`"" -Verb RunAs
+				exit
+		} else {
+			throw "This script must be run as an administrator."
+		}
+	}
+}
+
+# main menu
+$edgeInstalled = EdgeInstalled
+if (!$UninstallEdge -and !$InstallEdge -and !$InstallWebView) {
+	$host.UI.RawUI.WindowTitle = "EdgeRemover $version | made by @he3als"	
+
+	$RemoveEdgeData = $false
+	while (!$continue) {
+		Clear-Host
+		$description = "This script removes or installs Microsoft Edge."
+		Write-Host "$description`n" -ForegroundColor Blue
+		Write-Host @"
+To select an option, type its number.
+To perform an action, also type its number.
+"@ -ForegroundColor Yellow
+
+		Write-Host "`nEdge is currently detected as: " -NoNewline -ForegroundColor Green
+		Write-Host "$(@("Uninstalled", "Installed")[$edgeInstalled])" -ForegroundColor Cyan
+
+		Write-Host "`n$("-" * $description.Length)" -ForegroundColor Magenta
+
+		if ($RemoveEdgeData) {$colourData = "Green"; $textData = "Selected"} else {$colourData = "Red"; $textData = "Unselected"}
+
+		Write-Host "`nOptions:"
+		Write-Host "[1] Remove Edge User Data ($textData)" -ForegroundColor $colourData
+		
+		Write-Host "`nActions:"
+		Write-Host @"
+[2] Uninstall Edge
+[3] Install Edge
+[4] Install WebView
+[5] Install both Edge & WebView
+"@ -ForegroundColor Cyan
+
+		$userInput = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+
+		switch ($userInput.VirtualKeyCode) {
+			49 { # remove Edge user data (1)
+				$RemoveEdgeData = !$RemoveEdgeData
+			}
+			50 { # uninstall Edge (2)
+				$UninstallEdge = $true
+				$continue = $true
+			}
+			51 { # reinstall Edge (3)
+				$InstallEdge = $true
+				$continue = $true
+			}
+			52 { # reinstall WebView (4)
+				$InstallWebView = $true
+				$continue = $true
+			}
+			53 { # reinstall both (5)
+				$InstallWebView = $true
+				$InstallEdge = $true
+				$continue = $true
+			}
+		}
+	}
+
+	Clear-Host
+}
+
+if ($UninstallEdge) {
+	Write-Status "Uninstalling Edge Chromium..."
+	RemoveEdgeChromium $(!$edgeInstalled)
+	if ($null -ne (Get-AppxPackage -Name Microsoft.MicrosoftEdge)) {
+		if ($KeepAppX) {
+			Write-Status "AppX Edge is being left, there might be a stub..." -Level Warning
+		} else {
+			Write-Status "Uninstalling AppX Edge..." -Level Warning
+			RemoveEdgeAppx
+		}
+	}
+	Write-Output ""
+}
+
+if ($RemoveEdgeData) {
+	KillEdgeProcesses
+	DeleteIfExist "$([Environment]::GetFolderPath('LocalApplicationData'))\Microsoft\Edge"
+	Write-Status "Removed any existing Edge Chromium user data."
+	Write-Output ""
+}
+
+if ($InstallEdge) {
+	InstallEdgeChromium
+	Write-Output ""
+}
+if ($InstallWebView) {
+	InstallWebView
+	Write-Output ""
+}
+
+Write-Host "Completed." -ForegroundColor Cyan
+if ($NonInteractive) { exit }
+Pause]]>
+		</File>
   </Extensions>
 </unattend>
