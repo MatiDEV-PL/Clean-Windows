@@ -663,6 +663,7 @@ reg.exe delete "HKCU\SOFTWARE\Microsoft\Siuf\Rules" /v PeriodInNanoSeconds /f
 
 :: Disable Game Bar
 reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_Enabled /t REG_DWORD /d 0 /f
+reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v "AppCaptureEnabled" /t REG_DWORD /d 0 /f
 
 :: DELETES SCHEDULED TASKS REGISTRY KEYS
 :: Deleting Application Compatibility Appraiser
