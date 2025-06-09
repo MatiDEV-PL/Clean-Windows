@@ -665,6 +665,16 @@ reg.exe delete "HKCU\SOFTWARE\Microsoft\Siuf\Rules" /v PeriodInNanoSeconds /f
 reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_Enabled /t REG_DWORD /d 0 /f
 reg.exe add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v "AppCaptureEnabled" /t REG_DWORD /d 0 /f
 
+:: Stops annoying ms-gamebar pop-up
+reg.exe add "HKCR\ms-gamebar" /f /ve /d "URL:ms-gamebar"
+reg.exe add "HKCR\ms-gamebar" /f /v "URL Protocol" /d ""
+reg.exe add "HKCR\ms-gamebar" /f /v "NoOpenWith" /d ""
+reg.exe add "HKCR\ms-gamebar\shell\open\command" /f /ve /d "\"%SystemRoot%\System32\systray.exe\""
+reg.exe add "HKCR\ms-gamebarservices" /f /ve /d "URL:ms-gamebarservices"
+reg.exe add "HKCR\ms-gamebarservices" /f /v "URL Protocol" /d ""
+reg.exe add "HKCR\ms-gamebarservices" /f /v "NoOpenWith" /d ""
+reg.exe add "HKCR\ms-gamebarservices\shell\open\command" /f /ve /d "\"%SystemRoot%\System32\systray.exe\""
+
 :: DELETES SCHEDULED TASKS REGISTRY KEYS
 :: Deleting Application Compatibility Appraiser
 reg.exe delete "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks\{0600DD45-FAF2-4131-A006-0B17509B9F78}" /f
