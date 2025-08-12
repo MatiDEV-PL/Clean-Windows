@@ -342,7 +342,7 @@
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
                     <Order>2</Order>
-                    <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
+                    <CommandLine>cmd /c copy "C:\Windows\Setup\Scripts\Browser_Downloader.bat" "%UserProfile%\Desktop\Browser_Downloader.bat"</CommandLine>
                     <Description>Create Browser_Downloader.bat on Desktop</Description>
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
@@ -374,7 +374,7 @@
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
                     <Order>2</Order>
-                    <CommandLine>cmd /c copy C:\Windows\Setup\Scripts\Browser_Downloader.bat %UserProfile%\Desktop\Browser_Downloader.bat</CommandLine>
+                    <CommandLine>cmd /c copy "C:\Windows\Setup\Scripts\Browser_Downloader.bat" "%UserProfile%\Desktop\Browser_Downloader.bat"</CommandLine>
                     <Description>Create Browser_Downloader.bat on Desktop</Description>
                 </SynchronousCommand>
             </FirstLogonCommands>
