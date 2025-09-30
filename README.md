@@ -11,14 +11,14 @@ The autounattend.xml file is Microsoft's official method for automating Windows 
 > Windows modified using autounattend.xml does not have a browser installed. You need to install one using the Browser_downloader.bat located on the desktop or through other methods, such as using the command prompt.
 
 # 🔑Key Features
-🚀 Installation & Setup Optimization
+### 🚀 Installation & Setup Optimization
 - Bypasses TPM, Secure Boot, CPU, RAM, storage, and disk requirements
 - Forces Windows Setup to show all available editions
 - Hides EULA, OEM registration, Microsoft account creation, and wireless setup pages
 - Sets network location to "Work" and prevents forced Microsoft account creation
 - Disables network adapters during setup to prevent automatic updates
 
-🛡️ Privacy & Telemetry Configuration
+### 🛡️ Privacy & Telemetry Configuration
 - Disables all Windows telemetry and data collection services
 - Removes diagnostic tracking and feedback collection
 - Disables advertising ID and targeted advertisements
@@ -27,11 +27,11 @@ The autounattend.xml file is Microsoft's official method for automating Windows 
 - Removes activity history and timeline features
 - Blocks input personalization and typing data collection
 
-🗑️ Bloatware & App Removal
+### 🗑️ Bloatware & App Removal
 - Removes over 40 pre-installed Microsoft Store apps like Teams, Xbox apps, Edge
 - Removes Windows components like Internet Explorer, WordPad
 
-⚡ Performance Optimizations
+### ⚡ Performance Optimizations
 - Enables Ultimate Performance power plan
 - Optimizes memory management and virtual memory settings
 - Increases network performance with IRP stack size modifications
@@ -39,7 +39,7 @@ The autounattend.xml file is Microsoft's official method for automating Windows 
 - Sets over 200 Windows services to Manual or Disabled startup
 - Disables unnecessary background processes and scheduled tasks
 
-🔧 System Configuration
+### 🔧 System Configuration
 - Enables long file paths (up to 32,767 characters)
 - Disables hibernation and fast startup features
 - Configures taskbar alignment and removes unnecessary UI elements
@@ -49,14 +49,14 @@ The autounattend.xml file is Microsoft's official method for automating Windows 
 - Disables automatic driver downloads and installations
 - Blocks Windows 11 upgrades beyond current version
 
-🛠️ Advanced Features
+### 🛠️ Advanced Features
 - Includes browser downloader utility for desktop deployment
 - Disables Windows Defender sample submission
 - Configures firewall and network security settings
 - Removes remote access capabilities
 - Disables Windows Error Reporting
 
-📱 Windows 11 Specific Tweaks
+### 📱 Windows 11 Specific Tweaks
 - Removes Copilot AI assistant integration
 - Disables Recall feature and widgets
 - Configures Start menu and taskbar behavior
