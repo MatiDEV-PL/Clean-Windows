@@ -3,7 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/MatiDEV-PL/Clean-Windows/blob/main/LICENSE) 
 
 # 📋 Overview
-Clean Windows provides a comprehensive Windows installation automation solution that removes bloatware, enhances privacy, and optimizes performance by default. Using a customized autounattend.xml answer file, it bypasses Windows setup requirements, removes bloatware, disables telemetry, and applies extensive system optimizations automatically during installation
+Clean Windows provides a comprehensive Windows installation automation solution that removes bloatware, enhances privacy, and optimizes performance. It bypasses Windows setup requirements, removes bloatware, disables telemetry, and applies extensive system optimizations automatically during installation
 
 The autounattend.xml file is Microsoft's official method for automating Windows installations without user interaction. All modifications are transparently documented in autounattend.xml, which handles everything from bypassing TPM requirements to configuring privacy settings and removing unwanted software. For detailed information about Windows unattended installations, see Microsoft's official [Answer files](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/update-windows-settings-and-scripts-create-your-own-answer-file-sxs?view=windows-11) documentation.
 
