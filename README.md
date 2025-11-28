@@ -95,6 +95,6 @@ If Edge is still present for any reason (thanks, Microsoft), run the following c
 - [EdgeRemover](https://github.com/he3als/EdgeRemover/tree/main)
 
 # 🎁 If you like my work consider giving tip
-[<img src="https://liberapay.com/assets/widgets/donate.svg" width="100">](https://liberapay.com/MatiDEV-PL/donate) 
+[<img src="https://raw.githubusercontent.com/datatrans/payment-logos/master/assets/apm/paypal.svg?sanitize=true" width="100">](https://paypal.me/MatiDEVPL) [<img src="https://liberapay.com/assets/widgets/donate.svg" width="100">](https://liberapay.com/MatiDEV-PL/donate) 
 
 <img src="https://github.com/MatiDEV-PL/Clean-Windows/blob/main/Donate.png" width="120">
